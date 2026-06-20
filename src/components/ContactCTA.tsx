@@ -16,23 +16,23 @@ export default function ContactCTA() {
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
             <span className="text-xs font-semibold uppercase tracking-widest text-violet-300">
-              Taking on new clients
+              Open for new projects
             </span>
           </div>
 
           <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Let&apos;s build something{" "}
+            Got something that needs{" "}
             <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-              great together.
+              building?
             </span>
           </h2>
 
           <p className="mx-auto mt-6 max-w-xl text-lg text-zinc-400">
-            Tell us about your project and we&apos;ll get back to you within one
-            business day with thoughts and next steps.
+            Tell us what you&apos;re working on. We&apos;ll reply within one business day
+            with whether we&apos;re a good fit and what a next step looks like.
           </p>
 
-          {/* Simple contact form */}
+          {/* Simple contact form — no backend yet */}
           <form
             className="mx-auto mt-10 flex max-w-xl flex-col gap-4"
             onSubmit={(e) => e.preventDefault()}
@@ -51,12 +51,12 @@ export default function ContactCTA() {
             </div>
             <input
               type="text"
-              placeholder="Project type (e.g. Website redesign)"
+              placeholder="What do you need? (e.g. AI automation, website, API integration)"
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-violet-500/50 focus:bg-white/[0.08] focus:ring-1 focus:ring-violet-500/30"
             />
             <textarea
               rows={4}
-              placeholder="Tell us about your project..."
+              placeholder="Brief description — what's the problem you're trying to solve?"
               className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-violet-500/50 focus:bg-white/[0.08] focus:ring-1 focus:ring-violet-500/30"
             />
             <button
@@ -68,7 +68,7 @@ export default function ContactCTA() {
           </form>
 
           <p className="mt-4 text-xs text-zinc-600">
-            No spam, ever. We reply within 1 business day.
+            We respond within 1 business day. No sales calls, no pressure.
           </p>
         </div>
       </div>

@@ -14,26 +14,34 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Agency — Premium Digital Studio",
-    template: "%s | Agency",
+    default: "DevOps Target — AI Automation & Web Development",
+    template: "%s | DevOps Target",
   },
   description:
-    "We craft exceptional digital experiences — strategy, design, and engineering for ambitious brands.",
-  keywords: ["digital agency", "web design", "branding", "development", "UI/UX"],
-  authors: [{ name: "Agency" }],
+    "AI automation, web development, and technical operations for businesses that need things built right and running reliably.",
+  keywords: [
+    "AI automation",
+    "web development",
+    "DevOps",
+    "workflow automation",
+    "technical operations",
+    "API integration",
+    "infrastructure",
+  ],
+  authors: [{ name: "DevOps Target" }],
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "Agency",
-    title: "Agency — Premium Digital Studio",
+    siteName: "DevOps Target",
+    title: "DevOps Target — AI Automation & Web Development",
     description:
-      "We craft exceptional digital experiences — strategy, design, and engineering for ambitious brands.",
+      "AI automation, web development, and technical operations for businesses that need things built right and running reliably.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Agency — Premium Digital Studio",
+    title: "DevOps Target — AI Automation & Web Development",
     description:
-      "We craft exceptional digital experiences — strategy, design, and engineering for ambitious brands.",
+      "AI automation, web development, and technical operations for businesses that need things built right and running reliably.",
   },
   robots: {
     index: true,
