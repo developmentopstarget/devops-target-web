@@ -4,28 +4,28 @@ import { useState } from "react";
 
 const faqs = [
   {
-    q: "How does your process work?",
-    a: "We start with a discovery session to understand your goals and constraints, then move into strategy, design, and development sprints. You'll have visibility and input at every stage through shared tools and weekly syncs.",
+    q: "What kinds of businesses do you work with?",
+    a: "Small and mid-size businesses, founders, and operators who need reliable technical work done without hiring a full-time developer. Our clients range from solo consultants needing a professional web presence to operations teams automating internal workflows.",
   },
   {
-    q: "What does a typical project cost?",
-    a: "Projects range from $15k for a focused marketing site to $150k+ for a complex web application. We provide a detailed fixed-price proposal after discovery, so there are no surprises.",
+    q: "How does a typical project start?",
+    a: "We start with a short scoping call to understand what you need and what's already in place. From there we put together a fixed-scope proposal — clear deliverables, timeline, and price — so there are no surprises.",
   },
   {
-    q: "How long does a project take?",
-    a: "Most branding and website projects wrap up in 6–10 weeks. Larger product builds typically run 3–6 months. We work in focused sprints to keep momentum high.",
+    q: "What does AI automation actually mean for my business?",
+    a: "It means identifying the tasks your team does manually and repeatedly — data entry, report generation, lead processing, document handling — and building systems that do them automatically. We build these with tools like OpenAI, n8n, Make, and custom scripts depending on what fits best.",
   },
   {
-    q: "Do you work with early-stage startups?",
-    a: "Yes — we love working with founders at the idea and MVP stage. We offer a lean starter package designed to validate your concept and build credibility without overspending.",
+    q: "How long does a website project take?",
+    a: "A focused marketing or portfolio site typically takes 2–4 weeks. A more complex web app with authentication, a CMS, or third-party integrations runs 4–8 weeks. We scope it clearly upfront so you know what to expect.",
   },
   {
-    q: "What happens after launch?",
-    a: "We offer ongoing retainer support for maintenance, iteration, and growth. Many clients work with us for years after their initial launch.",
+    q: "Do you offer ongoing support after launch?",
+    a: "Yes. We offer monthly technical operations retainers covering monitoring, maintenance, updates, and small improvements. Many clients keep us on after launch to handle the ongoing technical side of their business.",
   },
   {
-    q: "Can you work with our existing tech stack?",
-    a: "In most cases, yes. We're framework-agnostic on the frontend and have experience integrating with most backends and CMSes. We'll let you know in discovery if we see any blockers.",
+    q: "What tools and platforms do you work with?",
+    a: "On the web side: Next.js, TypeScript, Vercel, Tailwind. For automation: n8n, Make, Zapier, OpenAI, Python. For integrations: REST APIs, webhooks, HubSpot, Airtable, QuickBooks, Shopify, and most standard SaaS tools. If you use it, we can probably connect to it.",
   },
 ];
 
@@ -46,7 +46,7 @@ export default function FAQ() {
             Common questions
           </h2>
           <p className="mt-4 text-zinc-400">
-            Everything you need to know before we start working together.
+            The things people usually ask before we get started.
           </p>
         </div>
 

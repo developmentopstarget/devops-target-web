@@ -1,39 +1,39 @@
 const services = [
   {
-    icon: "✦",
-    title: "Brand Strategy",
+    icon: "◎",
+    title: "AI Automation",
     description:
-      "We define your positioning, voice, and visual identity to build a brand that resonates and endures in a crowded market.",
+      "Custom AI workflows that eliminate repetitive tasks — document processing, data extraction, intelligent routing, and LLM-powered pipelines tailored to your operations.",
   },
   {
-    icon: "◈",
-    title: "UI / UX Design",
+    icon: "✦",
+    title: "Web Development",
     description:
-      "Research-driven design that balances beauty with function. From wireframes to polished interfaces, every pixel is intentional.",
+      "Fast, production-ready websites and web apps built with Next.js and TypeScript. Clean code, strong SEO foundations, and CMS integration when you need it.",
   },
   {
     icon: "⬡",
-    title: "Web Development",
+    title: "Workflow Automation",
     description:
-      "Fast, accessible, and scalable web applications built with modern stacks — Next.js, TypeScript, and the best tools available.",
+      "Connect your tools and eliminate manual hand-offs. We build automation across Make, n8n, Zapier, and custom scripts that run reliably in the background.",
   },
   {
-    icon: "◎",
-    title: "Mobile Apps",
+    icon: "◈",
+    title: "Technical Operations",
     description:
-      "Native-quality mobile experiences for iOS and Android. Smooth, performant, and built to retain users long-term.",
+      "Ongoing technical support, monitoring, and maintenance so your systems stay healthy. We act as your embedded technical operator — proactive, not reactive.",
   },
   {
     icon: "⟡",
-    title: "SEO & Growth",
+    title: "API & Backend Integration",
     description:
-      "Technical SEO, content strategy, and conversion optimization that compound over time and drive sustainable growth.",
+      "Third-party API wiring, webhook plumbing, and lightweight backend services. We make your stack talk to itself so you don't have to do it manually.",
   },
   {
     icon: "◻",
-    title: "Product Consulting",
+    title: "Deployment & Infrastructure",
     description:
-      "Embedded advisory for teams that want senior-level product and engineering perspective without the full-time hire.",
+      "CI/CD pipelines, Vercel and cloud deployments, environment configuration, and the infrastructure scaffolding that turns code into a running product.",
   },
 ];
 
@@ -50,11 +50,11 @@ export default function Services() {
             What we do
           </p>
           <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Full-spectrum digital services
+            Technical services, end to end
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-zinc-400">
-            From first concept to final launch, we cover every discipline your
-            product needs.
+            From AI automation to live infrastructure — we cover the full technical
+            stack so you can focus on running your business.
           </p>
         </div>
 

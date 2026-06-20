@@ -1,49 +1,49 @@
 const projects = [
   {
-    tag: "SaaS · Web App",
-    title: "Flowdesk",
+    tag: "AI Automation · Document Processing",
+    title: "Invoice Extraction Pipeline",
     description:
-      "End-to-end redesign and rebuild of a B2B invoicing platform. Reduced onboarding time by 40% with a guided setup flow.",
+      "Built an LLM-powered pipeline that ingests PDF invoices from email, extracts line items, and pushes structured data into Airtable — replacing 6 hours of manual entry per week.",
     gradient: "from-violet-600 to-indigo-600",
     accentColor: "text-violet-400",
   },
   {
-    tag: "E-Commerce · Mobile",
-    title: "Terroir",
+    tag: "Web Development · SaaS",
+    title: "Client Portal — Consulting Firm",
     description:
-      "Premium wine discovery app for iOS. Custom recommendation engine UI, subscriptions, and a cellar-tracking experience.",
-    gradient: "from-rose-600 to-pink-600",
-    accentColor: "text-rose-400",
-  },
-  {
-    tag: "Fintech · Dashboard",
-    title: "Quanta Finance",
-    description:
-      "Real-time portfolio analytics dashboard. Complex data visualisation made simple with a clean, high-contrast design system.",
-    gradient: "from-emerald-600 to-teal-600",
-    accentColor: "text-emerald-400",
-  },
-  {
-    tag: "Brand · Website",
-    title: "Kinfolk Studio",
-    description:
-      "Full brand identity and marketing site for a boutique architecture firm. Awarded Awwwards Site of the Day.",
-    gradient: "from-amber-500 to-orange-600",
-    accentColor: "text-amber-400",
-  },
-  {
-    tag: "Media · Platform",
-    title: "Pulse",
-    description:
-      "Editorial platform for independent journalists. Custom CMS, SEO-first architecture, and a 3x improvement in page speed.",
+      "Custom Next.js portal for a boutique consultancy. Secure client login, project status dashboards, and document delivery. Deployed to Vercel with a Notion-backed CMS.",
     gradient: "from-sky-600 to-blue-600",
     accentColor: "text-sky-400",
   },
   {
-    tag: "Healthcare · Web App",
-    title: "Aura Health",
+    tag: "Workflow Automation · E-Commerce",
+    title: "Order Fulfilment Sync",
     description:
-      "Patient-facing portal redesign for a telehealth startup. Accessibility-first, HIPAA-compliant, and loved by users.",
+      "Connected Shopify, a 3PL warehouse API, and a customer-facing status page using n8n. Eliminated daily manual stock reconciliation for a 200-order/day operation.",
+    gradient: "from-emerald-600 to-teal-600",
+    accentColor: "text-emerald-400",
+  },
+  {
+    tag: "Technical Ops · Infrastructure",
+    title: "Deployment Overhaul",
+    description:
+      "Migrated a legacy PHP site to a Next.js stack on Vercel, set up CI/CD via GitHub Actions, and introduced staging environments and automated smoke tests.",
+    gradient: "from-amber-500 to-orange-600",
+    accentColor: "text-amber-400",
+  },
+  {
+    tag: "API Integration · Internal Tool",
+    title: "CRM ↔ Accounting Sync",
+    description:
+      "Bidirectional sync between HubSpot and QuickBooks Online via a lightweight middleware service. Kills duplicate data entry and keeps deal and invoice status in lock-step.",
+    gradient: "from-rose-600 to-pink-600",
+    accentColor: "text-rose-400",
+  },
+  {
+    tag: "AI Automation · Lead Generation",
+    title: "AI Outreach Qualifier",
+    description:
+      "Automated lead enrichment and scoring pipeline using OpenAI + Clay. Qualifies inbound leads against ICP criteria and drafts personalised outreach for human review.",
     gradient: "from-fuchsia-600 to-purple-600",
     accentColor: "text-fuchsia-400",
   },
@@ -61,11 +61,11 @@ export default function Portfolio() {
             Selected work
           </p>
           <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Projects we're proud of
+            Real problems, shipped solutions
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-zinc-400">
-            A curated selection of recent client work across industries and
-            disciplines.
+            A selection of recent automation, development, and infrastructure
+            projects.
           </p>
         </div>
 

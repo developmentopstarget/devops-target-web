@@ -2,10 +2,12 @@ import Link from "next/link";
 
 const footerLinks = {
   Services: [
-    { label: "Brand Strategy", href: "#services" },
-    { label: "UI / UX Design", href: "#services" },
+    { label: "AI Automation", href: "#services" },
     { label: "Web Development", href: "#services" },
-    { label: "Mobile Apps", href: "#services" },
+    { label: "Workflow Automation", href: "#services" },
+    { label: "Technical Operations", href: "#services" },
+    { label: "API Integration", href: "#services" },
+    { label: "Deployment & Infra", href: "#services" },
   ],
   Company: [
     { label: "About", href: "#about" },
@@ -22,22 +24,22 @@ export default function Footer() {
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="sm:col-span-2">
-            <Link href="#" className="flex items-center gap-2 w-fit">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 text-white text-sm font-bold">
-                A
+            <Link href="#" className="flex items-center gap-2.5 w-fit">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 text-white text-xs font-bold">
+                DT
               </span>
               <span className="text-lg font-semibold tracking-tight text-white">
-                Agency
+                DevOps<span className="text-violet-400"> Target</span>
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-500">
-              Premium digital studio crafting exceptional web and mobile
-              experiences for ambitious brands worldwide.
+              AI automation, web development, and technical operations for
+              businesses that need things built right and running reliably.
             </p>
 
-            {/* Social icons (no external links) */}
+            {/* Placeholder social icons */}
             <div className="mt-6 flex items-center gap-4">
-              {["Tw", "Li", "Dr", "Gh"].map((icon) => (
+              {["Tw", "Li", "Gh"].map((icon) => (
                 <button
                   key={icon}
                   className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-xs font-semibold text-zinc-500 transition hover:border-white/20 hover:text-white"
@@ -74,7 +76,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-16 flex flex-col items-center gap-4 border-t border-white/5 pt-8 sm:flex-row sm:justify-between">
           <p className="text-xs text-zinc-600">
-            &copy; {new Date().getFullYear()} Agency Studio. All rights reserved.
+            &copy; {new Date().getFullYear()} DevOps Target. All rights reserved.
           </p>
           <div className="flex gap-6">
             {["Privacy Policy", "Terms of Service"].map((label) => (

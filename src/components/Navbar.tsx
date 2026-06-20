@@ -17,12 +17,12 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
         {/* Logo */}
-        <Link href="#" className="flex items-center gap-2 group">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 text-white text-sm font-bold shadow-lg shadow-violet-500/25">
-            A
+        <Link href="#" className="flex items-center gap-2.5 group">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 text-white text-xs font-bold shadow-lg shadow-violet-500/25 tracking-tight">
+            DT
           </span>
           <span className="text-lg font-semibold tracking-tight text-white">
-            Agency
+            DevOps<span className="text-violet-400"> Target</span>
           </span>
         </Link>
 
@@ -46,7 +46,7 @@ export default function Navbar() {
             href="#contact"
             className="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition-all hover:shadow-violet-500/40 hover:scale-105"
           >
-            Get in touch
+            Start a project
           </Link>
         </div>
 
@@ -89,7 +89,7 @@ export default function Navbar() {
                 className="inline-block rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2 text-sm font-semibold text-white"
                 onClick={() => setOpen(false)}
               >
-                Get in touch
+                Start a project
               </Link>
             </li>
           </ul>

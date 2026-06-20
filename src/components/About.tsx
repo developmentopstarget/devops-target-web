@@ -1,15 +1,15 @@
 const values = [
   {
-    title: "Quality over speed",
-    body: "We'd rather take an extra week and ship something extraordinary than rush out something mediocre.",
+    title: "Lean and focused",
+    body: "No bloated teams or unnecessary hand-offs. You work directly with the person building — which means faster decisions, tighter feedback loops, and fewer things lost in translation.",
   },
   {
-    title: "Radical transparency",
-    body: "You always know where your project stands — weekly updates, open Figma files, shared repos.",
+    title: "Ops-first thinking",
+    body: "Everything we build is designed to run without constant supervision. Reliable automation, clean deployments, and systems that hold up under real-world conditions.",
   },
   {
-    title: "Long-term thinking",
-    body: "We build for maintainability and scalability. No shortcuts that become technical debt six months later.",
+    title: "No lock-in",
+    body: "Clean code, documented systems, and tools you already own. When a project ends, you walk away with something you can understand, maintain, and extend.",
   },
 ];
 
@@ -23,45 +23,47 @@ export default function About() {
           {/* Left — copy */}
           <div>
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-violet-400">
-              About us
+              About
             </p>
             <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-              A small team with{" "}
+              A technical operator,{" "}
               <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-                big impact.
+                not an agency.
               </span>
             </h2>
             <p className="mt-6 text-zinc-400 leading-8">
-              We're a tight-knit studio of designers, engineers, and strategists
-              who've worked with startups, scale-ups, and Fortune 500s. We don't
-              do cookie-cutter websites — every engagement is custom, focused, and
-              built to move the needle.
+              DevOps Target is a lean technical practice built around one idea:
+              most businesses are drowning in manual work that should already be
+              automated. We step in, map the inefficiencies, and build the systems
+              that eliminate them — permanently.
             </p>
             <p className="mt-4 text-zinc-400 leading-8">
-              Founded in 2016, we've shipped over 150 projects across SaaS,
-              e-commerce, fintech, and media. Our process is collaborative, our
-              communication is direct, and our work speaks for itself.
+              Whether you need a website that actually converts, an AI pipeline that
+              handles your data, or a reliable technical partner to keep everything
+              running — this is the work we do every day.
             </p>
 
-            {/* Team avatars placeholder */}
-            <div className="mt-8 flex items-center gap-3">
-              <div className="flex -space-x-3">
-                {["A", "B", "C", "D"].map((initial, i) => (
-                  <div
-                    key={i}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#0a0a0f] text-sm font-bold text-white"
-                    style={{
-                      background: `linear-gradient(135deg, hsl(${260 + i * 15}, 70%, 55%), hsl(${240 + i * 15}, 80%, 50%))`,
-                    }}
-                  >
-                    {initial}
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-zinc-400">
-                Meet the team of{" "}
-                <span className="font-semibold text-white">12 specialists</span>
-              </p>
+            {/* Stack badges */}
+            <div className="mt-8 flex flex-wrap gap-2">
+              {[
+                "Next.js",
+                "TypeScript",
+                "Python",
+                "OpenAI",
+                "n8n",
+                "Make",
+                "Vercel",
+                "PostgreSQL",
+                "REST APIs",
+                "Webhooks",
+              ].map((tech) => (
+                <span
+                  key={tech}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-zinc-400"
+                >
+                  {tech}
+                </span>
+              ))}
             </div>
           </div>
 

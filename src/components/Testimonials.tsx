@@ -1,34 +1,34 @@
 const testimonials = [
   {
     quote:
-      "Working with Agency was the best product decision we made last year. They took our messy MVP and turned it into something our enterprise clients actually trust.",
-    name: "Sarah Chen",
-    role: "CEO, Flowdesk",
-    initials: "SC",
+      "We were spending hours every week on data entry that should have been automated years ago. They scoped it, built it, and shipped it in under two weeks. It just runs now.",
+    name: "Client A",
+    role: "Operations Manager, Professional Services",
+    initials: "CA",
     color: "from-violet-500 to-indigo-500",
   },
   {
     quote:
-      "The team's attention to detail is extraordinary. Every edge case was considered, every animation intentional. We shipped on time and under budget.",
-    name: "Marcus Webb",
-    role: "Product Lead, Quanta Finance",
-    initials: "MW",
+      "The website they built is the first one I've had that I actually understand how to maintain. Clean, fast, and the handover documentation was genuinely useful.",
+    name: "Client B",
+    role: "Founder, Consulting Firm",
+    initials: "CB",
+    color: "from-sky-500 to-blue-500",
+  },
+  {
+    quote:
+      "I needed someone who could bridge the gap between our business tools and our tech stack. They mapped everything out, built the integrations, and documented how it all works.",
+    name: "Client C",
+    role: "Director, E-Commerce Brand",
+    initials: "CC",
     color: "from-emerald-500 to-teal-500",
   },
   {
     quote:
-      "They don't just execute — they push back when something isn't right. That kind of honest partnership is rare. I'd hire them again without hesitation.",
-    name: "Priya Sharma",
-    role: "Founder, Aura Health",
-    initials: "PS",
-    color: "from-rose-500 to-pink-500",
-  },
-  {
-    quote:
-      "Our Awwwards win was a direct result of their design sensibility. More importantly, our conversion rate jumped 28% in the first month after launch.",
-    name: "James Okafor",
-    role: "Creative Director, Kinfolk Studio",
-    initials: "JO",
+      "Reliable, direct communication, and no BS. They flagged problems before I had to ask about them and fixed them the same day. That's exactly what I need from a technical partner.",
+    name: "Client D",
+    role: "CEO, SaaS Startup",
+    initials: "CD",
     color: "from-amber-500 to-orange-500",
   },
 ];
@@ -50,7 +50,7 @@ export default function Testimonials() {
             Testimonials
           </p>
           <h2 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Trusted by founders & teams
+            What clients say
           </h2>
         </div>
 
