@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Target — Product Detail (/products/[slug])</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8FAFC;--surface:#FFFFFF;--surface-2:#F1F5F9;--border:#E2E8F0;--border-strong:#CBD5E1;
+  --text-primary:#0F172A;--text-secondary:#5B6472;--text-tertiary:#94A3B8;
+  --accent:#4F46E5;--accent-hover:#4338CA;--accent-soft:#EEF2FF;
+  --success:#16A34A;--warning:#D97706;--danger:#DC2626;--info:#0891B2;
+  --shadow-sm:0 1px 2px rgba(15,23,42,.06);--shadow-md:0 4px 12px rgba(15,23,42,.08);--shadow-lg:0 12px 32px rgba(15,23,42,.14);
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;
+}
+[data-theme="dark"]{
+  --bg:#0B0F19;--surface:#141A26;--surface-2:#1B2333;--border:#262F42;--border-strong:#33405A;
+  --text-primary:#F1F5F9;--text-secondary:#9AA5B8;--text-tertiary:#6B7688;
+  --accent:#6366F1;--accent-hover:#818CF8;--accent-soft:#1E1B4B;
+  --success:#22C55E;--warning:#F59E0B;--danger:#F87171;--info:#22D3EE;
+  --shadow-sm:0 0 0 1px var(--border);--shadow-md:0 0 0 1px var(--border);--shadow-lg:0 12px 32px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text-primary);font-family:'Inter',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+.mono{font-family:'JetBrains Mono',monospace}
+a{color:inherit;text-decoration:none}
+.container{max-width:1200px;margin:0 auto;padding:0 16px}
+@media(min-width:640px){.container{padding:0 24px}}
+@media(min-width:1024px){.container{padding:0 32px}}
+
+/* NAV (reused) */
+.announce{background:var(--accent);color:#fff;font-size:12.5px;font-weight:500;text-align:center;padding:8px 16px}
+.nav{position:sticky;top:0;z-index:50;background:var(--surface);border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;align-items:center;gap:16px;height:60px;max-width:1200px;margin:0 auto;padding:0 16px}
+@media(min-width:1024px){.nav-inner{padding:0 32px}}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px}
+.logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#4F46E5,#4338CA);display:grid;place-items:center;color:#fff}
+.logo svg{width:18px;height:18px}
+.nav-links{display:none;align-items:center;gap:4px;margin-inline-start:8px}
+.nav-links a{padding:8px 12px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--text-secondary)}
+.nav-links a:hover,.nav-links a.active{background:var(--surface-2);color:var(--text-primary)}
+.nav-search{display:none;flex:1;max-width:420px;position:relative}
+.nav-search input{width:100%;height:40px;border:1px solid var(--border-strong);border-radius:10px;background:var(--bg);padding:0 12px 0 38px;font-size:13.5px;color:var(--text-primary)}
+.nav-search svg{position:absolute;inset-inline-start:12px;top:11px;width:16px;height:16px;color:var(--text-tertiary)}
+.nav-actions{display:flex;align-items:center;gap:6px;margin-inline-start:auto}
+.iconbtn{width:38px;height:38px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--text-secondary);display:grid;place-items:center;cursor:pointer;position:relative}
+.iconbtn:hover{background:var(--surface-2);color:var(--text-primary)}
+.iconbtn svg{width:19px;height:19px}
+.cart-badge{position:absolute;top:4px;inset-inline-end:4px;min-width:16px;height:16px;padding:0 4px;border-radius:9px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:grid;place-items:center;font-family:'JetBrains Mono',monospace}
+@media(min-width:1024px){.nav-links,.nav-search{display:flex}.hamburger{display:none}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:.15s}
+.btn svg{width:17px;height:17px}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-hover)}
+.btn-secondary{background:var(--surface);color:var(--text-primary);border-color:var(--border-strong)}.btn-secondary:hover{background:var(--surface-2)}
+.btn-full{width:100%}
+
+/* BREADCRUMBS */
+.crumbs{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-tertiary);padding:16px 0;flex-wrap:wrap}
+.crumbs a:hover{color:var(--text-secondary)}
+.crumbs .sep{opacity:.5}
+.crumbs .cur{color:var(--text-secondary);font-weight:600}
+
+/* PRODUCT TOP: gallery + buy box */
+.pd{display:grid;gap:24px;padding-bottom:8px}
+@media(min-width:1024px){.pd{grid-template-columns:1.1fr .9fr;gap:40px;align-items:start}}
+
+/* GALLERY */
+.gallery{display:flex;flex-direction:column;gap:12px}
+@media(min-width:1024px){.gallery{position:sticky;top:80px}}
+.gmain{aspect-ratio:4/3;border:1px solid var(--border);border-radius:var(--radius-lg);background:radial-gradient(120% 120% at 30% 10%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 60%),var(--surface-2);display:grid;place-items:center;position:relative;overflow:hidden}
+.gmain svg{width:96px;height:96px;color:var(--border-strong)}
+.gmain .badge{position:absolute;top:14px;inset-inline-start:14px;background:color-mix(in srgb,var(--danger) 16%,transparent);color:var(--danger);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:5px 10px;border-radius:7px}
+.thumbs{display:flex;gap:10px}
+.thumbs .t{width:72px;height:72px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);display:grid;place-items:center;cursor:pointer;color:var(--border-strong)}
+.thumbs .t.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.thumbs .t svg{width:30px;height:30px}
+
+/* BUY BOX */
+.buy .brandline{font-size:12.5px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+.buy h1{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:6px 0 10px;line-height:1.2}
+.buy .ratingline{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);margin-bottom:16px}
+.buy .stars{display:flex;gap:1px;color:var(--warning)}.buy .stars svg{width:15px;height:15px}
+.buy .ratingline a{color:var(--accent);font-weight:600}
+.pricebox{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.pricebox .price{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;letter-spacing:-.02em}
+.pricebox .old{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--text-tertiary);text-decoration:line-through}
+.pricebox .save{font-size:12px;font-weight:700;color:var(--success);background:color-mix(in srgb,var(--success) 14%,transparent);padding:4px 9px;border-radius:7px}
+.taxline{font-size:12px;color:var(--text-tertiary);margin-bottom:16px}
+.stockrow{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:18px}
+.stockrow .dot{width:8px;height:8px;border-radius:50%;background:var(--success)}
+.stockrow .in{color:var(--success)}
+.qtyrow{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.qtyrow .lbl{font-size:13px;font-weight:600;color:var(--text-secondary)}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--border-strong);border-radius:10px;overflow:hidden}
+.stepper button{width:40px;height:44px;border:none;background:var(--surface);color:var(--text-primary);font-size:18px;cursor:pointer}
+.stepper button:hover{background:var(--surface-2)}
+.stepper input{width:48px;height:44px;border:none;text-align:center;background:var(--surface);color:var(--text-primary);font-family:'JetBrains Mono',monospace;font-weight:600;font-size:15px}
+.buyctas{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.buyctas .row{display:flex;gap:10px}
+.buyctas .row .btn{flex:1}
+.wish{width:44px;flex:none!important;padding:0!important}
+.assur{border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:11px}
+.assur li{display:flex;gap:10px;font-size:13px;color:var(--text-secondary);list-style:none}
+.assur li b{color:var(--text-primary);font-weight:600}
+.assur svg{width:17px;height:17px;color:var(--accent);flex:none;margin-top:1px}
+
+/* TABS */
+.tabs{margin-top:40px;border-top:1px solid var(--border)}
+.tabhead{display:flex;gap:4px;border-bottom:1px solid var(--border);overflow-x:auto}
+.tabhead button{padding:14px 16px;border:none;background:transparent;font-size:14px;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tabhead button.on{color:var(--accent);border-bottom-color:var(--accent)}
+.tabpane{padding:22px 0;display:none}
+.tabpane.on{display:block}
+.tabpane p{font-size:14px;color:var(--text-secondary);max-width:70ch;margin-bottom:12px}
+
+/* SPEC TABLE */
+.spectable{border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;max-width:640px}
+.spectable .r{display:grid;grid-template-columns:40% 60%;font-size:13.5px}
+.spectable .r:nth-child(odd){background:var(--surface-2)}
+.spectable .k{padding:11px 14px;color:var(--text-secondary);font-weight:600}
+.spectable .v{padding:11px 14px;color:var(--text-primary);font-family:'JetBrains Mono',monospace}
+
+/* REVIEWS */
+.revsum{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+.revsum .big{font-size:44px;font-weight:800;line-height:1}
+.revsum .stars{display:flex;gap:2px;color:var(--warning)}.revsum .stars svg{width:16px;height:16px}
+.review{border-top:1px solid var(--border);padding:16px 0}
+.review .top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.review .av{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px}
+.review .who{font-size:13px;font-weight:600}
+.review .stars{display:flex;gap:1px;color:var(--warning)}.review .stars svg{width:12px;height:12px}
+.review .when{font-size:12px;color:var(--text-tertiary);margin-inline-start:auto}
+.review p{font-size:13.5px;color:var(--text-secondary);max-width:70ch}
+
+/* RELATED */
+.related{padding:20px 0 56px}
+.related h2{font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:18px}
+.prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:640px){.prod-grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:.15s}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
+.card .thumb{aspect-ratio:1;background:radial-gradient(110% 110% at 30% 10%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 60%),var(--surface-2);display:grid;place-items:center}
+.card .thumb svg{width:44px;height:44px;color:var(--border-strong)}
+.card .body{padding:12px;display:flex;flex-direction:column;gap:6px}
+.card .title{font-size:13.5px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .price{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px}
+
+/* STICKY MOBILE BUY BAR */
+.buybar{position:fixed;bottom:0;inset-inline:0;z-index:45;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.buybar .p{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px}
+.buybar .btn{flex:1}
+@media(min-width:1024px){.buybar{display:none}}
+
+footer{background:var(--surface);border-top:1px solid var(--border);margin-bottom:72px}
+.foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:20px 0;font-size:12.5px;color:var(--text-tertiary)}
+.foot .flinks{display:flex;gap:16px;flex-wrap:wrap}
+@media(min-width:1024px){footer{margin-bottom:0}}
+</style>
+</head>
+<body>
+
+<div class="announce">🚚 Free local delivery in <b>Springfield</b> over <span class="mono">$99</span> · Same-day in-store pickup</div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <button class="iconbtn hamburger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <a class="brand" href="#"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></span>DevOps<span style="color:var(--accent)">Target</span></a>
+    <nav class="nav-links"><a href="#" class="active">Shop</a><a href="#">Laptops</a><a href="#">PCs</a><a href="#">Components</a><a href="#">Deals</a><a href="#">Support</a></nav>
+    <div class="nav-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input placeholder="Search…"></div>
+    <div class="nav-actions">
+      <button class="iconbtn" aria-label="Theme" onclick="toggleTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <button class="iconbtn" aria-label="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></button>
+      <button class="iconbtn" aria-label="Cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1.6"/><circle cx="18" cy="21" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6"/></svg><span class="cart-badge">3</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <nav class="crumbs"><a href="#">Home</a><span class="sep">/</span><a href="#">Shop</a><span class="sep">/</span><a href="#">Laptops</a><span class="sep">/</span><span class="cur">MacBook Air 13" M3</span></nav>
+
+  <!-- Product top -->
+  <div class="pd">
+    <!-- Gallery -->
+    <div class="gallery">
+      <div class="gmain">
+        <span class="badge">Sale</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20M8 20l1-4M16 20l-1-4"/></svg>
+      </div>
+      <div class="thumbs">
+        <div class="t sel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg></div>
+        <div class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="3" width="16" height="18" rx="2"/></svg></div>
+        <div class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/></svg></div>
+        <div class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="6" width="18" height="12" rx="2"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Buy box -->
+    <div class="buy">
+      <div class="brandline">Apple</div>
+      <h1>MacBook Air 13" M3 (2024)</h1>
+      <div class="ratingline">
+        <span class="stars" id="hs"></span>
+        <span>4.8</span><span>·</span><a href="#reviews">126 reviews</a><span>·</span><span class="mono">SKU MBA13-M3-512</span>
+      </div>
+      <div class="pricebox">
+        <span class="price mono">$1,199</span>
+        <span class="old mono">$1,299</span>
+        <span class="save">Save $100</span>
+      </div>
+      <div class="taxline">Price incl. tax · Free local delivery over $99</div>
+      <div class="stockrow"><span class="dot"></span><span class="in">In stock — ready for same-day pickup in Springfield</span></div>
+
+      <div class="qtyrow">
+        <span class="lbl">Quantity</span>
+        <div class="stepper">
+          <button aria-label="Decrease" onclick="q(-1)">−</button>
+          <input id="qty" value="1" inputmode="numeric" aria-label="Quantity">
+          <button aria-label="Increase" onclick="q(1)">+</button>
+        </div>
+      </div>
+
+      <div class="buyctas">
+        <div class="row">
+          <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1.6"/><circle cx="18" cy="21" r="1.6"/><path d="M2 3h3l2.5 13h11l2-9H6"/></svg>Add to cart</button>
+          <button class="btn btn-secondary wish" aria-label="Add to wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.5-9.5-8.5A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6.5C19 16.5 12 21 12 21z"/></svg></button>
+        </div>
+        <button class="btn btn-secondary btn-full">Buy now</button>
+      </div>
+
+      <ul class="assur">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h13v10H3zM16 10h3l2 3v4h-5"/><circle cx="7" cy="19" r="1.5"/><circle cx="18" cy="19" r="1.5"/></svg><span><b>Same-day pickup</b> in Springfield, or free local delivery over $99.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 8 8 8 8s8-3 8-8V6z"/><path d="M9 12l2 2 4-4"/></svg><span><b>1-year local warranty</b> — serviced in-store, no shipping away.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14l-4 4M5 18h4v-4M20 4l-6 6M14 4h6v6"/></svg><span><b>14-day returns</b> on unopened items.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tabhead">
+      <button class="on" onclick="tab(event,'specs')">Specs</button>
+      <button onclick="tab(event,'overview')">Overview</button>
+      <button onclick="tab(event,'reviews')">Reviews (126)</button>
+      <button onclick="tab(event,'shipping')">Shipping & returns</button>
+    </div>
+
+    <div class="tabpane on" id="specs">
+      <div class="spectable">
+        <div class="r"><div class="k">Chip</div><div class="v">Apple M3, 8-core CPU</div></div>
+        <div class="r"><div class="k">GPU</div><div class="v">10-core</div></div>
+        <div class="r"><div class="k">Memory</div><div class="v">16GB unified</div></div>
+        <div class="r"><div class="k">Storage</div><div class="v">512GB SSD</div></div>
+        <div class="r"><div class="k">Display</div><div class="v">13.6" Liquid Retina, 2560×1664</div></div>
+        <div class="r"><div class="k">Battery</div><div class="v">Up to 18 hours</div></div>
+        <div class="r"><div class="k">Ports</div><div class="v">2× Thunderbolt, MagSafe, 3.5mm</div></div>
+        <div class="r"><div class="k">Weight</div><div class="v">1.24 kg</div></div>
+        <div class="r"><div class="k">Warranty</div><div class="v">1 year (local, in-store)</div></div>
+      </div>
+    </div>
+
+    <div class="tabpane" id="overview">
+      <p>The MacBook Air 13" with the M3 chip delivers fanless, all-day performance for work, study, and creative projects. Its 16GB of unified memory keeps dozens of tabs, design apps, and dev tools running smoothly.</p>
+      <p>Bought in-store at DevOps Target Springfield, every unit is checked, updated, and set up by our technicians before pickup — and backed by our local 1-year warranty.</p>
+    </div>
+
+    <div class="tabpane" id="reviews">
+      <div class="revsum">
+        <div><div class="big">4.8</div><div class="stars" id="rs"></div><div style="font-size:12px;color:var(--text-tertiary);margin-top:4px">126 reviews</div></div>
+        <button class="btn btn-secondary">Write a review</button>
+      </div>
+      <div class="review"><div class="top"><span class="av">SL</span><span class="who">Sara L.</span><span class="stars" id="r1"></span><span class="when">2 weeks ago</span></div><p>Picked it up same day in Springfield. Staff set everything up and transferred my data. Fast, silent, and the battery genuinely lasts all day.</p></div>
+      <div class="review"><div class="top"><span class="av">MK</span><span class="who">Marcus K.</span><span class="stars" id="r2"></span><span class="when">1 month ago</span></div><p>Great price vs. online, and having a local warranty is a huge plus. Would buy here again.</p></div>
+    </div>
+
+    <div class="tabpane" id="shipping">
+      <p><b>Pickup:</b> Same-day in-store pickup in Springfield when in stock. You'll get a notification when it's ready.</p>
+      <p><b>Delivery:</b> Free local delivery on orders over $99, typically next business day within the Springfield area.</p>
+      <p><b>Returns:</b> 14-day returns on unopened items; opened items subject to inspection. Warranty service handled in-store.</p>
+    </div>
+  </div>
+
+  <!-- Related -->
+  <section class="related">
+    <h2>You might also like</h2>
+    <div class="prod-grid" id="rel"></div>
+  </section>
+</div>
+
+<footer><div class="container foot">
+  <span>© 2026 DevOps Target · Springfield</span>
+  <div class="flinks"><a href="#">Support</a><a href="#">Warranty</a><a href="#">Track order</a><a href="#">About</a></div>
+</div></footer>
+
+<!-- Sticky mobile buy bar -->
+<div class="buybar">
+  <span class="p mono">$1,199</span>
+  <button class="btn btn-primary">Add to cart</button>
+</div>
+
+<script>
+function toggleTheme(){const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';}
+function q(d){const i=document.getElementById('qty');let v=Math.max(1,(parseInt(i.value)||1)+d);i.value=v;}
+function tab(e,id){
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tabhead button').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');e.currentTarget.classList.add('on');
+}
+const star='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .8-5 4.8 1.3 7L12 17.8 5.4 21l1.3-7-5-4.8 7-.8z"/></svg>';
+['hs','rs','r1','r2'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=star.repeat(5);});
+const rel=[
+  {name:'MacBook Pro 14" M3 Pro',price:'$1,999'},
+  {name:'Magic Keyboard + Mouse',price:'$199'},
+  {name:'USB-C Hub 8-in-1',price:'$59'},
+  {name:'Dell UltraSharp 27" 4K',price:'$549'},
+];
+const ic='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>';
+document.getElementById('rel').innerHTML=rel.map(p=>`<a class="card" href="#"><div class="thumb">${ic}</div><div class="body"><div class="title">${p.name}</div><div class="price mono">${p.price}</div></div></a>`).join('');
+</script>
+</body>
+</html>

@@ -4,14 +4,14 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 
 interface CartContextValue {
   count: number;
-  addItem: () => void;
+  addItem: (quantity?: number) => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [count, setCount] = useState(0);
-  const addItem = () => setCount((current) => current + 1);
+  const addItem = (quantity = 1) => setCount((current) => current + quantity);
 
   return <CartContext.Provider value={{ count, addItem }}>{children}</CartContext.Provider>;
 }

@@ -261,6 +261,22 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
+export function HeartIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 21s-7-4.5-9.5-8.5A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6.5C19 16.5 12 21 12 21z" />
+    </svg>
+  );
+}
+
+export function ReturnIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M9 14l-4 4M5 18h4v-4M20 4l-6 6M14 4h6v6" />
+    </svg>
+  );
+}
+
 export const categoryIcons = {
   laptop: LaptopIcon,
   desktop: DesktopIcon,
