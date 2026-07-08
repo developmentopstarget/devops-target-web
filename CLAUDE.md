@@ -71,3 +71,4 @@ For every feature:
 Primary deployment target is Vercel.
 
 Secondary deployment target for static sites is GitHub Pages.
+
