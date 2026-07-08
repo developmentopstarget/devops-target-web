@@ -1,3 +1,13 @@
+/* ============================================================
+   DevOps Target — Tailwind v4 theme tokens
+   Reference implementation of design-tokens.md.
+   Integrate into src/app/globals.css (replace the current
+   :root / @theme block). Dark mode = `.dark` class on <html>,
+   managed by next-themes.
+   Usage after integration: bg-bg, bg-surface, text-primary,
+   border-border, bg-accent, text-accent, etc.
+   ============================================================ */
+
 @import "tailwindcss";
 
 /* Dark variant driven by a .dark class (next-themes attribute="class") */
