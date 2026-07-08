@@ -237,6 +237,30 @@ export function LogoMarkIcon(props: IconProps) {
   );
 }
 
+export function FilterIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3 5h18M6 12h12M10 19h4" />
+    </svg>
+  );
+}
+
+export function SortIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3 6h13M3 12h9M3 18h5M17 8l3-3 3 3M20 5v14" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
 export const categoryIcons = {
   laptop: LaptopIcon,
   desktop: DesktopIcon,

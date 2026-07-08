@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SkeletonProductCard } from "@/components/ui/Skeleton";
@@ -11,10 +12,14 @@ export interface ProductGridProps {
   error?: string;
   onRetry?: () => void;
   skeletonCount?: number;
+  gridColsClassName?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  emptyAction?: ReactNode;
   className?: string;
 }
 
-const gridClasses = "grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4";
+const defaultGridClasses = "grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4";
 
 export function ProductGrid({
   products,
@@ -22,6 +27,10 @@ export function ProductGrid({
   error,
   onRetry,
   skeletonCount = 8,
+  gridColsClassName = defaultGridClasses,
+  emptyTitle = "No deals available right now",
+  emptyDescription = "Check back soon — new deals are added every week.",
+  emptyAction,
   className,
 }: ProductGridProps) {
   if (error) {
@@ -30,7 +39,7 @@ export function ProductGrid({
 
   if (loading) {
     return (
-      <div className={[gridClasses, className ?? ""].filter(Boolean).join(" ")}>
+      <div className={[gridColsClassName, className ?? ""].filter(Boolean).join(" ")}>
         {Array.from({ length: skeletonCount }, (_, i) => (
           <SkeletonProductCard key={i} />
         ))}
@@ -42,14 +51,15 @@ export function ProductGrid({
     return (
       <EmptyState
         icon={<ComponentsIcon className="h-5 w-5" aria-hidden="true" />}
-        title="No deals available right now"
-        description="Check back soon — new deals are added every week."
+        title={emptyTitle}
+        description={emptyDescription}
+        action={emptyAction}
       />
     );
   }
 
   return (
-    <div className={[gridClasses, className ?? ""].filter(Boolean).join(" ")}>
+    <div className={[gridColsClassName, className ?? ""].filter(Boolean).join(" ")}>
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

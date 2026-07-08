@@ -1,5 +1,6 @@
 import { storeConfig } from "@/config/store";
 import { dealsOfTheWeek, type Product } from "@/data/products";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 
 function availabilityFor(stock: Product["stock"]) {
   if (stock === "out-of-stock") return "https://schema.org/OutOfStock";
@@ -59,13 +60,7 @@ export function JsonLd() {
   return (
     <>
       {schemas.map((schema, index) => (
-        // Static, developer-authored config only — never interpolates user input.
-        // The `<` escape prevents a stray "</script>" from breaking out of the tag.
-        <script
-          key={index}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
-        />
+        <JsonLdScript key={index} schema={schema} />
       ))}
     </>
   );

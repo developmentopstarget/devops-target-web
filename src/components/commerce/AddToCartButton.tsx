@@ -34,7 +34,7 @@ export function AddToCartButton({ product, disabled, className }: AddToCartButto
       onClick={handleClick}
       className={className}
     >
-      {disabled ? "Out of stock" : justAdded ? "Added" : "Add to cart"}
+      {disabled ? "Notify me" : justAdded ? "Added" : "Add to cart"}
     </Button>
   );
 }
