@@ -57,16 +57,27 @@ Rule: **dark mode uses 1px borders instead of shadows** for separation (shadows 
 
 - **UI font:** **Inter** (400/500/600/700/800) — LOCKED. Loaded via `next/font/google` (Inter v4 variable, self-hosted at build). Replaces the repo's default Geist. Exposed as `--font-inter`.
 - **Numeric/mono font:** **JetBrains Mono** (500/600/700) — used only for **prices, SKUs, order numbers, spec values, and kbd hints**, to give a technical feel without mono everywhere. Exposed as `--font-jetbrains`.
-- **RTL companion:** Inter does not cover Arabic/Farsi. For the RTL locale add **Noto Sans Arabic** (same weights), applied when `dir="rtl"`.
+- **RTL companion:** Inter does not cover Arabic/Farsi. For the RTL locale use **Vazirmatn** (400/500/600/700/800), applied when `lang="fa"` / `dir="rtl"`. Exposed as `--font-vazir`. (Supersedes the earlier Noto Sans Arabic placeholder.)
 
 Integration (apply during first build, atomically with `theme.css` → `globals.css`):
 
 ```ts
 // src/app/layout.tsx
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Vazirmatn } from "next/font/google";
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["400","500","600","700","800"] });
 const jetbrainsMono = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["500","600","700"] });
-// add `${inter.variable} ${jetbrainsMono.variable}` to <html> className; remove Geist imports
+const vazirmatn = Vazirmatn({ variable: "--font-vazir", subsets: ["arabic","latin"], weight: ["400","500","600","700","800"] });
+// add `${inter.variable} ${jetbrainsMono.variable} ${vazirmatn.variable}` to <html> className; remove Geist imports
+```
+
+```css
+/* src/app/globals.css */
+[lang="fa"],
+[dir="rtl"],
+[lang="fa"] :not(.font-mono),
+[dir="rtl"] :not(.font-mono) {
+  font-family: var(--font-vazir), var(--font-inter), system-ui, sans-serif;
+}
 ```
 
 | Role | Size (mobile → desktop) | Weight | Tracking |

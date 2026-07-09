@@ -103,6 +103,15 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Farsi/RTL uses Vazirmatn; English/LTR stays on Inter.
+   JetBrains Mono (.font-mono — prices, SKUs, specs) is preserved in both languages. */
+[lang="fa"],
+[dir="rtl"],
+[lang="fa"] :not(.font-mono),
+[dir="rtl"] :not(.font-mono) {
+  font-family: var(--font-vazir), var(--font-inter), system-ui, sans-serif;
+}
+
 /* Prevent iOS input auto-zoom: inputs must be >=16px on mobile */
 @media (max-width: 640px) {
   input,

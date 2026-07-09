@@ -5,7 +5,7 @@ Build `devops-target-web` — the Next.js frontend for the DevOps Target compute
 ## Current State
 
 - **Branch**: `main`.
-- **Working Tree Status**: Layout overrides, Farsi localization bindings, and avatar scrubs are completed and verified with an optimized Next.js production build pass.
+- **Working Tree Status**: Layout overrides, Farsi localization bindings, avatar scrubs, and the Vazirmatn RTL font swap are completed and verified with an optimized Next.js production build pass.
 - **What Works**:
   - Account Layout Core Fix: completely rewrote `src/app/account/layout.tsx` to remove the outer grid columns, explicit min-widths, and large padding. Reads navigation tab strings dynamically from the localization helper.
   - Form Card Liquidation: modified `src/app/account/page.tsx` to remove theme/language preference cards and nested grid splits, laying out components in a clean vertical `w-full block space-y-4` stack. Integrates full dynamic translation binding for all form labels, buttons, and toasts.
@@ -18,7 +18,8 @@ Build `devops-target-web` — the Next.js frontend for the DevOps Target compute
   - Footer Localization: `Footer` is a client component translating all descriptions, columns, and navigation links dynamically.
   - Mobile Notification Drawer & Notifications Center: completely bound all notification array items (titles, bodies, timestamps, clear actions, mark-as-read toasts) to the `useLanguage` dictionary.
   - Pinned Bottom Menu: `src/components/layout/MobileBottomNav.tsx` uses `fixed bottom-0 left-0 right-0 z-50 h-16 bg-surface border-t flex justify-around items-center px-4 max-w-full` ensuring it stays perfectly flat at the bottom of the device viewport across all screens without falling apart.
-- **Latest Build Status**: Optimized production build (`npm run build`) completed successfully with zero compilation or TypeScript errors.
+  - Farsi/RTL Font: Vazirmatn (400/500/600/700/800, subsets `arabic`+`latin`) loaded via `next/font/google` as `--font-vazir` and applied through a `[lang="fa"], [dir="rtl"]` rule in `globals.css`. English/LTR stays on Inter; `.font-mono` (JetBrains Mono — prices/SKUs/specs) is preserved in both languages via a `:not(.font-mono)` guard.
+- **Latest Build Status**: Optimized production build (`npm run build`) completed successfully with zero compilation or TypeScript errors. Verified live in the browser: toggling to Farsi renders body text in Vazirmatn (confirmed via computed `font-family`) while prices stay in JetBrains Mono; toggling back to English stays on Inter.
 
 ## Files in Flight
 
@@ -26,15 +27,14 @@ None.
 
 ## Changed This Session
 
-- Modified `src/lib/useLanguage.ts` to implement expanded Farsi translation keys for notifications, time formats, categories, value props, visit store elements, and newsletters.
-- Modified `src/components/layout/Navbar.tsx` and `src/app/account/notifications/page.tsx` to bind notifications array mappings dynamically.
-- Refactored `src/components/commerce/CatalogHeader.tsx` to use the unified `productsMetrics` translation key.
-- Overwrote `src/components/sections/CategoryTiles.tsx`, `ValueProps.tsx`, `StoreLocal.tsx`, and `Newsletter.tsx` to localize all home page text elements.
+- Added Vazirmatn (Google Font, `--font-vazir`) to `src/app/layout.tsx` alongside the existing Inter/JetBrains Mono variables.
+- Added a `[lang="fa"], [dir="rtl"]` font-family rule to `src/app/globals.css` (with `:not(.font-mono)` guard) so Farsi/RTL renders in Vazirmatn while prices/SKUs/specs stay JetBrains Mono.
+- Updated `docs/design/design-tokens.md` typography section: Farsi companion font is now Vazirmatn (replaces the earlier Noto Sans Arabic placeholder).
 - Updated `handoff.md` to log current progress and milestones.
 
 ## Failed Attempts
 
-None.
+- A stray `next dev` process from an earlier session (not the one started this session) kept serving a stale bundle after the `globals.css` edit — hot reload silently didn't pick up the new rule even though the terminal logged successful compiles. Killing it, clearing `.next/cache`, and starting a fresh `npm run dev` fixed it. If font/CSS changes don't show up in-browser, check for a duplicate dev server first before assuming the CSS rule is wrong.
 
 ## Important Context
 

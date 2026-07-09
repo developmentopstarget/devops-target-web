@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Vazirmatn } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { CartProvider } from "@/components/commerce/CartProvider";
@@ -17,6 +17,12 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
+});
+
+const vazirmatn = Vazirmatn({
+  variable: "--font-vazir",
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -63,7 +69,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${vazirmatn.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="max-w-full overflow-x-hidden flex flex-col bg-bg text-primary">
