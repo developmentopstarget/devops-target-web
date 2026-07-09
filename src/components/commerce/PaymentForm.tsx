@@ -13,16 +13,14 @@ import {
 import { useTheme } from "next-themes";
 import { Input } from "@/components/ui/Input";
 import { CheckoutStepCard } from "@/components/commerce/CheckoutStepCard";
-import { simulateCheckoutPayment, type PaymentResult } from "@/lib/checkout";
+import { simulateCheckoutPayment, STRIPE_PUBLISHABLE_KEY, type PaymentResult } from "@/lib/checkout";
 
-// Publishable keys are safe to expose client-side by design — never put a secret
-// key here. Left unset until the Django backend + a real Stripe account exist;
-// see the TODO in lib/checkout.ts for the server-side half of this integration.
-const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = STRIPE_PUBLISHABLE_KEY ? loadStripe(STRIPE_PUBLISHABLE_KEY) : null;
 
 export interface PaymentFormHandle {
-  confirmPayment: () => Promise<PaymentResult>;
+  // clientSecret is set when checkout/page.tsx obtained a real PaymentIntent from
+  // POST /api/checkout/intent; the mock fields path ignores it and simulates instead.
+  confirmPayment: (clientSecret?: string) => Promise<PaymentResult>;
 }
 
 export interface PaymentFormProps {
@@ -77,13 +75,30 @@ const StripeFields = forwardRef<PaymentFormHandle>(function StripeFields(_props,
   const [fieldError, setFieldError] = useState<string | null>(null);
 
   useImperativeHandle(ref, () => ({
-    async confirmPayment(): Promise<PaymentResult> {
+    async confirmPayment(clientSecret?: string): Promise<PaymentResult> {
       if (!stripe || !elements || !complete.number || !complete.expiry || !complete.cvc) {
         return { ok: false, message: "Enter complete card details." };
       }
-      // TODO(stripe): call stripe.confirmCardPayment(clientSecret, { payment_method: { card: elements.getElement(CardNumberElement)! } })
-      // once the backend PaymentIntent endpoint exists. For now, simulate success/decline.
-      return simulateCheckoutPayment();
+      if (!clientSecret) {
+        return { ok: false, message: "Payment could not be started. Please try again." };
+      }
+
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      if (!cardNumberElement) {
+        return { ok: false, message: "Payment could not be started. Please try again." };
+      }
+
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardNumberElement },
+      });
+
+      if (error) {
+        return { ok: false, message: error.message ?? "Your card was declined. Please try a different payment method." };
+      }
+      if (paymentIntent && paymentIntent.status !== "succeeded" && paymentIntent.status !== "processing") {
+        return { ok: false, message: "Payment could not be confirmed. Please try again." };
+      }
+      return { ok: true };
     },
   }));
 
@@ -210,11 +225,11 @@ export const PaymentForm = forwardRef<PaymentFormHandle, PaymentFormProps>(funct
   const fieldsRef = useMemo(() => ({ current: null as PaymentFormHandle | null }), []);
 
   useImperativeHandle(ref, () => ({
-    confirmPayment: () => {
+    confirmPayment: (clientSecret?: string) => {
       if (!fieldsRef.current) {
         return Promise.resolve({ ok: false, message: "Payment form isn't ready yet." });
       }
-      return fieldsRef.current.confirmPayment();
+      return fieldsRef.current.confirmPayment(clientSecret);
     },
   }));
 

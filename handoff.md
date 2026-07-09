@@ -5,52 +5,51 @@ Build `devops-target-web` — the Next.js frontend for the DevOps Target compute
 ## Current State
 
 - **Branch**: `main`.
-- **Working Tree Status**: Layout overrides, Farsi localization bindings, avatar scrubs, and the Vazirmatn RTL font swap are completed and verified with an optimized Next.js production build pass.
+- **Working Tree Status**: Checkout is wired to the live Django backend end-to-end (order creation, PaymentIntent, Stripe/simulated confirm). Verified with `npm run build` + `npm run lint` and a live browser smoke test against a running Django server.
 - **What Works**:
-  - Account Layout Core Fix: completely rewrote `src/app/account/layout.tsx` to remove the outer grid columns, explicit min-widths, and large padding. Reads navigation tab strings dynamically from the localization helper.
-  - Form Card Liquidation: modified `src/app/account/page.tsx` to remove theme/language preference cards and nested grid splits, laying out components in a clean vertical `w-full block space-y-4` stack. Integrates full dynamic translation binding for all form labels, buttons, and toasts.
-  - Navbar Header and Controls: strictly rendering only three controls on the right on mobile screens in `src/components/layout/Navbar.tsx` (RTL toggle, theme selector, bell icon), and completely deleted any `UserIcon` profile/avatar shortcut elements from the top header tracking bar.
-  - SearchBar Localization: SearchBar placeholder and aria-label are bound dynamically to the dictionary mapping.
-  - Product Details View Localization: dynamic bindings are implemented across the `BuyBox`, `BuyBoxActions`, `ProductTabs`, `StickyBuyBar`, `ReviewSummary`, and `ReviewList` components. The breadcrumbs and "You might also like" heading are localized.
-  - Cart View Localization: `CartPage`, `CartLineItem`, and `StockBadge` read all static strings, quantities, action labels ("Remove", "Add to cart"), and inventory alerts from the dictionary.
-  - Home Page Localization: `HeroContent`, `DealsHeader`, `BuildPCBanner`, `CategoryTiles`, `ValueProps`, `StoreLocal`, and `Newsletter` are fully localized client-side.
-  - Catalog Page Localization: `CatalogHeader` localizes headers and product counts dynamically using the unified `productsMetrics` key without string concatenation bugs. `FilterPanel`, `FilterDrawer`, `SortDropdown`, `ProductCard` (sale/new badges), `Rating` (aria-labels), and `Pagination` are fully localized.
-  - Footer Localization: `Footer` is a client component translating all descriptions, columns, and navigation links dynamically.
-  - Mobile Notification Drawer & Notifications Center: completely bound all notification array items (titles, bodies, timestamps, clear actions, mark-as-read toasts) to the `useLanguage` dictionary.
-  - Pinned Bottom Menu: `src/components/layout/MobileBottomNav.tsx` uses `fixed bottom-0 left-0 right-0 z-50 h-16 bg-surface border-t flex justify-around items-center px-4 max-w-full` ensuring it stays perfectly flat at the bottom of the device viewport across all screens without falling apart.
-  - Farsi/RTL Font: Vazirmatn (400/500/600/700/800, subsets `arabic`+`latin`) loaded via `next/font/google` as `--font-vazir` and applied through a `[lang="fa"], [dir="rtl"]` rule in `globals.css`. English/LTR stays on Inter; `.font-mono` (JetBrains Mono — prices/SKUs/specs) is preserved in both languages via a `:not(.font-mono)` guard.
-- **Latest Build Status**: Optimized production build (`npm run build`) completed successfully with zero compilation or TypeScript errors. Verified live in the browser: toggling to Farsi renders body text in Vazirmatn (confirmed via computed `font-family`) while prices stay in JetBrains Mono; toggling back to English stays on Inter.
+  - Checkout `Pay` now: (1) requires login — redirects to `/login?next=/checkout` if `useAuth().user` is null; (2) POSTs the cart to `/api/orders` (new `POST` handler on the existing proxy), which creates a delivery `Address` via `/api/addresses` first when needed, then calls Django `POST /api/orders/` — real order, server-recomputed totals, real stock decrement; (3) POSTs `{ order_id }` to the new `/api/checkout/intent` proxy → Django `POST /api/checkout/intent/` for a Stripe `client_secret`; (4) confirms payment — real `stripe.confirmCardPayment` if `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is a real key, otherwise the existing card-number-based simulated confirm (decline test card `4000000000000002` still works); (5) on success, maps the real API order (`lib/checkout.ts: mapApiOrderToCheckoutOrder`) into the existing `CheckoutOrder` shape so `/checkout/success` shows the real order number/status without touching those UI components.
+  - Errors handled: out-of-stock/oversell rejection from Django (400) surfaces via the existing `ErrorBanner`, cart is preserved; payment decline same treatment; empty cart still redirects to `/cart` (pre-existing, unchanged).
+  - In demo mode (no real Stripe keys — the current state of both `.env.local` and backend `.env`), a failed/skipped intent call is non-fatal: the order already exists in Django regardless, and the simulated confirm still runs.
+- **What's Broken (pre-existing, not touched this session)**: Django `/admin/login/` returns a bare 500 (confirmed via `curl`, `DEBUG=False` masks the traceback) — unrelated to checkout; verified order creation via `manage.py shell` instead. There's also a latent race in `AuthProvider`/`LoginForm` (`router.replace("/account")` in `AuthProvider`'s effect vs. `router.push(next)` in `LoginForm`) that occasionally detours through `/account` before landing on the `next` URL — cosmetic, self-resolves, pre-existing.
+- **Latest Build/Test Status**: `npm run build` ✅, `npm run lint` ✅ (only pre-existing warnings/errors in `Footer.tsx`, `Navbar.tsx`, `Pagination.tsx`, `useLanguage.ts` — none in touched files). Live smoke test with both servers running: logged in as an existing user, added products to cart, paid with the `4242...` test card → real order created (e.g. `DT-341078`), stock decremented in the database, order visible via Django shell (`Order.objects.filter(...)`). Also verified: unauthenticated Pay → redirect to login → back to checkout; decline card (`4000...0002`) → ErrorBanner shown, cart preserved, order still recorded as `pending_payment`.
 
 ## Files in Flight
 
-None.
+None — checkout wiring is complete and verified.
 
 ## Changed This Session
 
-- Added Vazirmatn (Google Font, `--font-vazir`) to `src/app/layout.tsx` alongside the existing Inter/JetBrains Mono variables.
-- Added a `[lang="fa"], [dir="rtl"]` font-family rule to `src/app/globals.css` (with `:not(.font-mono)` guard) so Farsi/RTL renders in Vazirmatn while prices/SKUs/specs stay JetBrains Mono.
-- Updated `docs/design/design-tokens.md` typography section: Farsi companion font is now Vazirmatn (replaces the earlier Noto Sans Arabic placeholder).
-- Updated `handoff.md` to log current progress and milestones.
+- `src/app/api/orders/route.ts`: added `POST` — creates the delivery `Address` (via `/api/addresses`) when `fulfillment === "delivery"`, then forwards to Django `POST /api/orders/` with the auth cookie as a `Token` header. No offline/mock fallback for `POST` (unlike the existing `GET` stub) since faking stock-aware order creation isn't meaningful; returns 503 if `NEXT_PUBLIC_API_BASE_URL` is unset.
+- `src/app/api/checkout/intent/route.ts` (new): proxies `POST /api/checkout/intent/`, mirroring the auth-forwarding pattern used elsewhere.
+- `src/lib/checkout.ts`: added `STRIPE_PUBLISHABLE_KEY` (moved here from `PaymentForm.tsx` so `checkout/page.tsx` can read it too), `ApiOrder` type, `mapApiOrderStatus`/`mapApiOrderToCheckoutOrder` (Django order → existing `CheckoutOrder` shape), `extractOrderErrorMessage` (flattens DRF error payloads for the error banner). Removed the old `simulateCheckoutPayment` TODO comment (now implemented).
+- `src/components/commerce/PaymentForm.tsx`: `PaymentFormHandle.confirmPayment` now takes an optional `clientSecret`. Real Stripe path calls `stripe.confirmCardPayment(clientSecret, ...)`; mock path unchanged (simulated, ignores the secret).
+- `src/app/checkout/page.tsx`: `handlePay` rewritten per the flow above; Pay button also disabled while `useAuth()` is still loading (avoids a false "not logged in" redirect during the initial session fetch).
 
 ## Failed Attempts
 
-- A stray `next dev` process from an earlier session (not the one started this session) kept serving a stale bundle after the `globals.css` edit — hot reload silently didn't pick up the new rule even though the terminal logged successful compiles. Killing it, clearing `.next/cache`, and starting a fresh `npm run dev` fixed it. If font/CSS changes don't show up in-browser, check for a duplicate dev server first before assuming the CSS rule is wrong.
+- None on the implementation side. During manual smoke testing, several browser-automation clicks on the "Add to cart" / "Sign Out" / "Pay" buttons silently didn't register (no network call, no state change) when immediately followed by a navigation in the same batch — a tool/timing artifact, not an app bug. Confirmed by re-clicking (or dispatching `.click()` via console) after a short wait, which worked every time.
 
 ## Important Context
 
-- **2FA is a stub on purpose**: django-otp hasn't landed in the `api` repo yet (planned Phase 4). `/verify-2fa` and `POST /api/auth/verify-2fa` exist as a real UI + seam, but there's no actual challenge/verify backend call.
-- Token storage tradeoff: httpOnly cookie (server-set via Route Handlers) chosen over localStorage/memory.
-- `NEXT_PUBLIC_API_BASE_URL` must be set (in `.env.local`, not committed) before talking to a real backend.
+- **Demo/simulated payment path is intentional, not a shortcut**: with no real Stripe keys configured anywhere in this repo (frontend `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` unset, backend `STRIPE_SECRET_KEY` unset → defaults to `"mock_secret_key"` in `config/settings.py`), a real call to Stripe's API would always fail. `checkout/page.tsx` gates on `HAS_REAL_STRIPE_KEY` (frontend publishable key presence) so the intent call failing/being skipped in demo mode doesn't block checkout — the order is already real in Django by that point either way.
+- Order `status` vocabulary differs between Django (`pending_payment`, `paid`, `preparing`, `ready`, `shipped`, `delivered`, `failed`, `cancelled`, `refunded`) and the frontend's existing `OrderStatus` (`placed`, `paid`, `fulfilling`, `completed`) — mapped via `mapApiOrderStatus` in `lib/checkout.ts`. Since no Stripe webhook listener runs locally (no `stripe listen` forwarding), orders stay `pending_payment` after a "successful" simulated or even real confirm — this is expected/correct given the environment, not a bug.
+- The delivery address flow creates a **new** `Address` row on every delivery order (via `/api/addresses` POST) rather than reusing/selecting one of the user's saved addresses — matches the checkout page's existing ad-hoc address form UI without requiring a redesign; Django requires an `address_id` FK, so this bridges the two.
+- Product catalog data (`src/data/products.ts`) slugs are kept in sync with the backend's `seed_catalog` management command — `CartItem.slug` is what gets sent as Django's `OrderItemInputSerializer.product` (a `SlugField`).
+- `account/orders/page.tsx` and `account/orders/[id]/page.tsx` still assume the old mock order shape (`orderNumber`, `deliveryMethod`, flat `items[].productId/qty/price`) which doesn't match what `/api/orders` GET actually returns when `NEXT_PUBLIC_API_BASE_URL` is set (Django's `number`/`fulfillment`/nested `items[].quantity`) — this mismatch pre-dates this session and is out of scope for the checkout wiring task; worth a follow-up if order history needs to work against the live backend too.
+- Django admin (`/admin/login/`) 500s regardless of credentials — pre-existing, unrelated to checkout, not fixed this session (out of scope). Order verification was done via `manage.py shell` instead.
+- A throwaway `smoketest` / `smoketest@example.com` Django user (password `SmokeTest123!`) was created for testing and left in place (harmless, useful for future local testing). A temporary `smoke_admin_tmp` superuser created to try reaching the (broken) admin UI was deleted afterward.
 
 ## Next Step
 
-1. Connect local environment to `devops-target-api` server.
-2. Run end-to-end user checkout flows and order tracking verify tests using the Django admin portal.
+1. If order history in `/account/orders` needs to work against the live backend, reconcile its mock shape with Django's real `OrderSerializer` shape (see "Important Context" above).
+2. Investigate/fix the pre-existing Django `/admin/login/` 500 error (unrelated to checkout) if admin access is needed.
+3. To exercise the real Stripe path, set a real `pk_test_...`/`sk_test_...` pair in `web/.env.local` and `api/backend/.env`, then re-run the smoke test.
 
 ## Commands to Run First
 
 - `git status --short`
-- `npm run dev`
+- `npm run dev` (frontend, port 3000)
+- `../api/backend/.venv/bin/python ../api/backend/manage.py runserver` (backend, port 8000) — or however the Django dev server is normally started in this environment.
 
 ## Completed Milestones
 
@@ -58,3 +57,4 @@ None.
 - **Milestone 2 — Secure Account Route Tree (`/account`)**: Fully implemented profile setting, orders list/details log, addresses CRUD management, and helper API proxies with offline stubs (Completed: 2026-07-09).
 - **Layout and Responsive Corrections**: Pixel-perfect mobile-first navigation bar locking, bottom menu global persistence, content offset wrapping, and boundary bleeding prevention complete (Completed: 2026-07-09).
 - **Farsi Translation Dynamic Pass**: Complete localization mapping and binding across the storefront utilities, account route tree, buy box sections, shopping cart layouts, home page, product catalog, notification center, and footer (Completed: 2026-07-09).
+- **Milestone 3 — Live Checkout Integration**: Checkout `Pay` creates a real, owner-scoped, server-recomputed order via Django (`/api/orders`, `/api/checkout/intent`), decrements real stock, and confirms payment via real Stripe Elements or a clearly-marked simulated path depending on configured keys; errors (auth, oversell, decline, empty cart) all handled (Completed: 2026-07-10).

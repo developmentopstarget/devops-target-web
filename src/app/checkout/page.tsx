@@ -14,18 +14,23 @@ import { PaymentForm, type PaymentFormHandle } from "@/components/commerce/Payme
 import { PromoCode, type AppliedPromo } from "@/components/commerce/PromoCode";
 import { useCart } from "@/components/commerce/CartProvider";
 import { useToast } from "@/components/ui/Toast";
+import { useAuth } from "@/lib/auth/AuthProvider";
 import { formatCurrency } from "@/lib/currency";
 import { useMounted } from "@/lib/useMounted";
 import {
   computeDeliveryFee,
-  generateOrderNumber,
+  extractOrderErrorMessage,
+  mapApiOrderToCheckoutOrder,
   saveOrder,
+  STRIPE_PUBLISHABLE_KEY,
   TAX_RATE,
+  type ApiOrder,
   type CheckoutAddress,
   type CheckoutDeliveryMethod,
-  type CheckoutOrder,
   type PickupContact,
 } from "@/lib/checkout";
+
+const HAS_REAL_STRIPE_KEY = Boolean(STRIPE_PUBLISHABLE_KEY);
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -36,6 +41,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, clear } = useCart();
   const { show } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const paymentRef = useRef<PaymentFormHandle>(null);
   const mounted = useMounted();
 
@@ -91,6 +97,11 @@ export default function CheckoutPage() {
   }
 
   async function handlePay() {
+    if (!user) {
+      router.push("/login?next=/checkout");
+      return;
+    }
+
     const validationErrors = validate();
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
@@ -101,7 +112,72 @@ export default function CheckoutPage() {
     setPaymentError(null);
     setSubmitting(true);
 
-    const result = await paymentRef.current?.confirmPayment();
+    // Step 1: create the real order server-side. Django recomputes totals and
+    // decrements stock, so this is the source of truth for what actually happened.
+    let apiOrder: ApiOrder;
+    try {
+      const orderRes = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fulfillment: deliveryMethod,
+          items: items.map((item) => ({ product: item.slug, quantity: item.quantity })),
+          promo_code: promo?.code,
+          address: deliveryMethod === "delivery" ? address : undefined,
+        }),
+      });
+
+      if (orderRes.status === 401) {
+        router.push("/login?next=/checkout");
+        setSubmitting(false);
+        return;
+      }
+
+      const orderData = await orderRes.json().catch(() => null);
+      if (!orderRes.ok) {
+        setPaymentError(extractOrderErrorMessage(orderData) ?? "Could not place your order. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      apiOrder = orderData as ApiOrder;
+    } catch {
+      setPaymentError("Could not reach the server. Please try again.");
+      setSubmitting(false);
+      return;
+    }
+
+    // Step 2: get a PaymentIntent client secret for this order.
+    let clientSecret: string | undefined;
+    try {
+      const intentRes = await fetch("/api/checkout/intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: apiOrder.id }),
+      });
+
+      if (intentRes.ok) {
+        const intentData = await intentRes.json();
+        clientSecret = intentData.client_secret;
+      } else if (HAS_REAL_STRIPE_KEY) {
+        const intentData = await intentRes.json().catch(() => null);
+        setPaymentError(extractOrderErrorMessage(intentData) ?? "Could not initialize payment. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+      // Without a real publishable key we're in demo mode: the order already exists
+      // (visible in Django admin), so a failed/skipped intent call isn't fatal —
+      // fall through to the simulated confirm below.
+    } catch {
+      if (HAS_REAL_STRIPE_KEY) {
+        setPaymentError("Could not reach the payment server. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+    }
+
+    // Step 3: confirm payment — real Stripe Elements if configured, otherwise simulated.
+    const result = await paymentRef.current?.confirmPayment(clientSecret);
 
     if (!result?.ok) {
       setPaymentError(result?.message ?? "Payment failed. Please try again.");
@@ -109,22 +185,13 @@ export default function CheckoutPage() {
       return;
     }
 
-    const order: CheckoutOrder = {
-      orderNumber: generateOrderNumber(),
-      placedAt: new Date().toISOString(),
+    const order = mapApiOrderToCheckoutOrder(apiOrder, {
       email: email.trim(),
       deliveryMethod,
       address: deliveryMethod === "delivery" ? address : undefined,
       pickupContact: deliveryMethod === "pickup" ? pickupContact : undefined,
       items,
-      subtotal,
-      discount,
-      promoCode: promo?.code,
-      deliveryFee,
-      tax,
-      total,
-      status: "paid",
-    };
+    });
 
     setPlacingOrder(true);
     saveOrder(order);
@@ -240,7 +307,7 @@ export default function CheckoutPage() {
                 fullWidth
                 size="lg"
                 className="mt-4"
-                disabled={hasUnavailableItem}
+                disabled={hasUnavailableItem || authLoading}
                 loading={submitting}
                 onClick={handlePay}
               >

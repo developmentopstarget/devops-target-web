@@ -102,6 +102,109 @@ const mockOrders = [
   },
 ];
 
+interface OrderCreateAddress {
+  firstName: string;
+  lastName: string;
+  line1: string;
+  city: string;
+  postalCode: string;
+  phone: string;
+}
+
+interface OrderCreateBody {
+  fulfillment: "pickup" | "delivery";
+  items: { product: string; quantity: number }[];
+  promo_code?: string;
+  address?: OrderCreateAddress;
+}
+
+export async function POST(request: Request) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Order creation always needs the real backend — it recomputes totals and
+  // decrements stock, which can't be faithfully faked offline like the GET stub above.
+  if (!API_BASE_URL) {
+    return NextResponse.json(
+      { detail: "Backend is not configured (set NEXT_PUBLIC_API_BASE_URL)." },
+      { status: 503 },
+    );
+  }
+
+  const body = (await request.json().catch(() => null)) as OrderCreateBody | null;
+  if (!body || !Array.isArray(body.items) || body.items.length === 0) {
+    return NextResponse.json({ items: "At least one item is required." }, { status: 400 });
+  }
+
+  const authHeaders = {
+    Authorization: `Token ${token}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    let addressId: number | undefined;
+
+    if (body.fulfillment === "delivery") {
+      const address = body.address;
+      if (!address) {
+        return NextResponse.json({ address_id: "A delivery address is required." }, { status: 400 });
+      }
+
+      const addressRes = await fetch(`${API_BASE_URL}/api/addresses/`, {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({
+          full_name: `${address.firstName} ${address.lastName}`.trim(),
+          line1: address.line1,
+          line2: "",
+          city: address.city,
+          postal_code: address.postalCode,
+          phone: address.phone,
+          is_default: false,
+        }),
+      });
+
+      const addressData = await addressRes.json().catch(() => null);
+      if (!addressRes.ok) {
+        return NextResponse.json(addressData ?? { address_id: "Could not save delivery address." }, {
+          status: addressRes.status,
+        });
+      }
+      addressId = addressData.id;
+    }
+
+    const orderRes = await fetch(`${API_BASE_URL}/api/orders/`, {
+      method: "POST",
+      headers: authHeaders,
+      body: JSON.stringify({
+        fulfillment: body.fulfillment,
+        address_id: addressId,
+        items: body.items,
+        promo_code: body.promo_code ?? "",
+      }),
+    });
+
+    const orderData = await orderRes.json().catch(() => null);
+
+    if (!orderRes.ok) {
+      if (orderRes.status === 401) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      return NextResponse.json(orderData ?? { detail: "Could not place your order." }, {
+        status: orderRes.status,
+      });
+    }
+
+    return NextResponse.json(orderData, { status: 201 });
+  } catch {
+    return NextResponse.json({ detail: "Could not reach the order server." }, { status: 502 });
+  }
+}
+
 export async function GET() {
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
