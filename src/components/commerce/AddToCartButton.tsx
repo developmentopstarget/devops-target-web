@@ -18,7 +18,7 @@ export function AddToCartButton({ product, disabled, className }: AddToCartButto
   const [justAdded, setJustAdded] = useState(false);
 
   function handleClick() {
-    addItem();
+    addItem(product);
     show(`Added "${product.name}" to cart`, "success");
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 1500);

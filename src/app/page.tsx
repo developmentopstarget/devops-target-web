@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { CartProvider } from "@/components/commerce/CartProvider";
-import { ToastProvider } from "@/components/ui/Toast";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -27,23 +25,21 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function Home() {
   return (
-    <CartProvider>
-      <ToastProvider>
-        <JsonLd />
-        <AnnouncementBar />
-        <Navbar />
-        <main className="flex-1">
-          <Hero />
-          <CategoryTiles />
-          <Deals />
-          <ValueProps />
-          <BuildPCBanner />
-          <StoreLocal />
-          <Newsletter />
-        </main>
-        <Footer />
-        <MobileBottomNav />
-      </ToastProvider>
-    </CartProvider>
+    <>
+      <JsonLd />
+      <AnnouncementBar />
+      <Navbar />
+      <main className="flex-1">
+        <Hero />
+        <CategoryTiles />
+        <Deals />
+        <ValueProps />
+        <BuildPCBanner />
+        <StoreLocal />
+        <Newsletter />
+      </main>
+      <Footer />
+      <MobileBottomNav />
+    </>
   );
 }

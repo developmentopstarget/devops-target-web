@@ -6,16 +6,13 @@ import { Button } from "@/components/ui/Button";
 import { CartIcon } from "@/components/ui/icons";
 import { QtyStepper } from "@/components/commerce/QtyStepper";
 import { WishlistButton } from "@/components/commerce/WishlistButton";
-import { useCart } from "@/components/commerce/CartProvider";
+import { maxQuantityForStock, useCart } from "@/components/commerce/CartProvider";
 import { useToast } from "@/components/ui/Toast";
 import type { Product } from "@/data/products";
 
 export interface BuyBoxActionsProps {
   product: Product;
 }
-
-const MAX_QTY = 10;
-const MAX_QTY_LOW_STOCK = 5;
 
 export function BuyBoxActions({ product }: BuyBoxActionsProps) {
   const { addItem } = useCart();
@@ -24,17 +21,17 @@ export function BuyBoxActions({ product }: BuyBoxActionsProps) {
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const outOfStock = product.stock === "out-of-stock";
-  const maxQty = product.stock === "low-stock" ? MAX_QTY_LOW_STOCK : MAX_QTY;
+  const maxQty = maxQuantityForStock(product.stock);
 
   function handleAddToCart() {
     setAdding(true);
-    addItem(qty);
+    addItem(product, qty);
     show(`Added ${qty} × "${product.name}" to cart`, "success");
     window.setTimeout(() => setAdding(false), 600);
   }
 
   function handleBuyNow() {
-    addItem(qty);
+    addItem(product, qty);
     router.push("/cart");
   }
 

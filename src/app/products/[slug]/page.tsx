@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CartProvider } from "@/components/commerce/CartProvider";
-import { ToastProvider } from "@/components/ui/Toast";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -118,32 +116,30 @@ export default async function ProductPage({ params }: ProductPageProps) {
   ];
 
   return (
-    <CartProvider>
-      <ToastProvider>
-        <BreadcrumbJsonLd items={breadcrumbItems} />
-        <ProductJsonLd product={product} detail={detail} />
-        <AnnouncementBar />
-        <Navbar />
-        <main className="flex-1 pb-[76px] lg:pb-0">
-          <Container>
-            <Breadcrumbs items={breadcrumbItems} />
+    <>
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <ProductJsonLd product={product} detail={detail} />
+      <AnnouncementBar />
+      <Navbar />
+      <main className="flex-1 pb-[76px] lg:pb-0">
+        <Container>
+          <Breadcrumbs items={breadcrumbItems} />
 
-            <div className="grid gap-6 pb-2 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-10">
-              <ProductGallery product={product} />
-              <BuyBox product={product} detail={detail} />
-            </div>
+          <div className="grid gap-6 pb-2 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-10">
+            <ProductGallery product={product} />
+            <BuyBox product={product} detail={detail} />
+          </div>
 
-            <ProductTabs tabs={tabs} />
+          <ProductTabs tabs={tabs} />
 
-            <section className="pb-14 pt-5">
-              <h2 className="mb-4.5 text-xl font-bold tracking-tight text-primary">You might also like</h2>
-              <ProductGrid products={related} gridColsClassName="grid grid-cols-2 gap-3.5 sm:grid-cols-4" />
-            </section>
-          </Container>
-        </main>
-        <Footer />
-        <StickyBuyBar product={product} />
-      </ToastProvider>
-    </CartProvider>
+          <section className="pb-14 pt-5">
+            <h2 className="mb-4.5 text-xl font-bold tracking-tight text-primary">You might also like</h2>
+            <ProductGrid products={related} gridColsClassName="grid grid-cols-2 gap-3.5 sm:grid-cols-4" />
+          </section>
+        </Container>
+      </main>
+      <Footer />
+      <StickyBuyBar product={product} />
+    </>
   );
 }

@@ -237,6 +237,14 @@ export function LogoMarkIcon(props: IconProps) {
   );
 }
 
+export function TrashIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+    </svg>
+  );
+}
+
 export function FilterIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { CartProvider } from "@/components/commerce/CartProvider";
+import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
 
 const inter = Inter({
@@ -64,7 +66,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-bg text-primary">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          {children}
+          <CartProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>

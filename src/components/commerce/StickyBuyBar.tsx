@@ -19,7 +19,7 @@ export function StickyBuyBar({ product }: StickyBuyBarProps) {
 
   function handleAddToCart() {
     setAdding(true);
-    addItem(1);
+    addItem(product);
     show(`Added "${product.name}" to cart`, "success");
     window.setTimeout(() => setAdding(false), 600);
   }

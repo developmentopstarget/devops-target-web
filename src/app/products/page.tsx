@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { CartProvider } from "@/components/commerce/CartProvider";
-import { ToastProvider } from "@/components/ui/Toast";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -98,75 +96,73 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   ];
 
   return (
-    <CartProvider>
-      <ToastProvider>
-        <BreadcrumbJsonLd items={breadcrumbItems} />
-        <AnnouncementBar />
-        <Navbar />
-        <main className="flex-1">
-          <Container>
-            <Breadcrumbs items={breadcrumbItems} />
+    <>
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <AnnouncementBar />
+      <Navbar />
+      <main className="flex-1">
+        <Container>
+          <Breadcrumbs items={breadcrumbItems} />
 
-            <div className="flex flex-wrap items-end justify-between gap-4 pb-4.5 pt-1.5">
-              <div>
-                <h1 className="text-2xl font-extrabold tracking-tight text-primary">{title}</h1>
-                <p className="mt-1 text-[13px] text-secondary">
-                  <span className="font-mono font-semibold text-primary">{total}</span> products · in{" "}
-                  {storeConfig.city} &amp; online
-                </p>
-              </div>
+          <div className="flex flex-wrap items-end justify-between gap-4 pb-4.5 pt-1.5">
+            <div>
+              <h1 className="text-2xl font-extrabold tracking-tight text-primary">{title}</h1>
+              <p className="mt-1 text-[13px] text-secondary">
+                <span className="font-mono font-semibold text-primary">{total}</span> products · in{" "}
+                {storeConfig.city} &amp; online
+              </p>
             </div>
+          </div>
 
-            <div className="pb-3.5 lg:hidden">
-              <FilterDrawer
+          <div className="pb-3.5 lg:hidden">
+            <FilterDrawer
+              pathname={PATHNAME}
+              filters={filters}
+              categoryOptions={categoryOptions}
+              brandOptions={brandOptions}
+              ramOptions={ramOptions}
+              storageOptions={storageOptions}
+              resultCount={total}
+            />
+          </div>
+
+          <div className="grid gap-6 pb-12 lg:grid-cols-[264px_1fr] lg:items-start">
+            <aside className="hidden lg:sticky lg:top-19 lg:block">
+              <FilterPanel
                 pathname={PATHNAME}
                 filters={filters}
                 categoryOptions={categoryOptions}
                 brandOptions={brandOptions}
                 ramOptions={ramOptions}
                 storageOptions={storageOptions}
-                resultCount={total}
               />
-            </div>
+            </aside>
 
-            <div className="grid gap-6 pb-12 lg:grid-cols-[264px_1fr] lg:items-start">
-              <aside className="hidden lg:sticky lg:top-19 lg:block">
-                <FilterPanel
-                  pathname={PATHNAME}
-                  filters={filters}
-                  categoryOptions={categoryOptions}
-                  brandOptions={brandOptions}
-                  ramOptions={ramOptions}
-                  storageOptions={storageOptions}
-                />
-              </aside>
-
-              <div>
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <ActiveFilterChips pathname={PATHNAME} filters={filters} categoryLabels={categoryLabels} />
-                  <SortDropdown pathname={PATHNAME} filters={filters} />
-                </div>
-
-                <ProductGrid
-                  products={items}
-                  gridColsClassName="grid grid-cols-2 gap-3.5 sm:grid-cols-3 xl:grid-cols-4"
-                  emptyTitle="No products match these filters"
-                  emptyDescription="Try removing a filter or two to see more results."
-                  emptyAction={
-                    <Button as="a" href={PATHNAME} variant="secondary" size="sm">
-                      Clear all filters
-                    </Button>
-                  }
-                />
-
-                <Pagination pathname={PATHNAME} filters={filters} page={page} pageCount={pageCount} />
+            <div>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <ActiveFilterChips pathname={PATHNAME} filters={filters} categoryLabels={categoryLabels} />
+                <SortDropdown pathname={PATHNAME} filters={filters} />
               </div>
+
+              <ProductGrid
+                products={items}
+                gridColsClassName="grid grid-cols-2 gap-3.5 sm:grid-cols-3 xl:grid-cols-4"
+                emptyTitle="No products match these filters"
+                emptyDescription="Try removing a filter or two to see more results."
+                emptyAction={
+                  <Button as="a" href={PATHNAME} variant="secondary" size="sm">
+                    Clear all filters
+                  </Button>
+                }
+              />
+
+              <Pagination pathname={PATHNAME} filters={filters} page={page} pageCount={pageCount} />
             </div>
-          </Container>
-        </main>
-        <Footer />
-        <MobileBottomNav />
-      </ToastProvider>
-    </CartProvider>
+          </div>
+        </Container>
+      </main>
+      <Footer />
+      <MobileBottomNav />
+    </>
   );
 }
