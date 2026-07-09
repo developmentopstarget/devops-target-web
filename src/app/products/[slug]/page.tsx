@@ -17,8 +17,11 @@ import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { ProductJsonLd } from "@/components/seo/ProductJsonLd";
 import { categories } from "@/data/categories";
 import { catalog, getProductBySlug, type Product } from "@/data/products";
-import { getProductDetail } from "@/data/product-details";
+import { getProductDetail, type ProductDetail } from "@/data/product-details";
 import { storeConfig } from "@/config/store";
+import { fetchCategories } from "@/lib/api/categories";
+import { fetchAllProductSlugs, fetchProductBySlug, fetchProducts } from "@/lib/api/products";
+import { emptyFilters } from "@/lib/products-filter";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -27,15 +30,26 @@ interface ProductPageProps {
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
+  const slugs = await fetchAllProductSlugs();
+  if (slugs && slugs.length > 0) return slugs.map((slug) => ({ slug }));
   return catalog.map((product) => ({ slug: product.slug }));
+}
+
+async function resolveProduct(slug: string): Promise<{ product: Product; detail: ProductDetail } | null> {
+  const apiResult = await fetchProductBySlug(slug);
+  if (apiResult) return apiResult;
+
+  const product = getProductBySlug(slug);
+  if (!product) return null;
+  return { product, detail: getProductDetail(product) };
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
-  if (!product) return {};
+  const resolved = await resolveProduct(slug);
+  if (!resolved) return {};
 
-  const detail = getProductDetail(product);
+  const { product, detail } = resolved;
   const description = detail.description[0];
 
   return {
@@ -46,7 +60,10 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   };
 }
 
-function getRelatedProducts(product: Product) {
+async function getRelatedProducts(product: Product): Promise<Product[]> {
+  const apiResult = await fetchProducts({ ...emptyFilters, category: [product.category] });
+  if (apiResult) return apiResult.items.filter((p) => p.slug !== product.slug).slice(0, 4);
+
   const sameCategory = catalog.filter((p) => p.category === product.category && p.slug !== product.slug);
   const rest = catalog.filter((p) => p.category !== product.category && p.slug !== product.slug);
   return [...sameCategory, ...rest].slice(0, 4);
@@ -54,12 +71,13 @@ function getRelatedProducts(product: Product) {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
-  if (!product) notFound();
+  const resolved = await resolveProduct(slug);
+  if (!resolved) notFound();
 
-  const detail = getProductDetail(product);
-  const categoryName = categories.find((c) => c.slug === product.category)?.name;
-  const related = getRelatedProducts(product);
+  const { product, detail } = resolved;
+  const categoryList = (await fetchCategories()) ?? categories;
+  const categoryName = categoryList.find((c) => c.slug === product.category)?.name;
+  const related = await getRelatedProducts(product);
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },

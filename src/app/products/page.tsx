@@ -16,6 +16,8 @@ import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { categories } from "@/data/categories";
 import { catalog } from "@/data/products";
 import { storeConfig } from "@/config/store";
+import { fetchCategories } from "@/lib/api/categories";
+import { fetchProducts } from "@/lib/api/products";
 import {
   PAGE_SIZE,
   countActiveDimensions,
@@ -23,6 +25,7 @@ import {
   paginate,
   parseFilters,
   sortProducts,
+  type ParsedFilters,
   type RawSearchParams,
 } from "@/lib/products-filter";
 
@@ -32,8 +35,8 @@ interface ProductsPageProps {
   searchParams: Promise<RawSearchParams>;
 }
 
-function buildCatalogFacets() {
-  const categoryOptions = categories
+function buildCatalogFacets(categoryList: { slug: string; name: string }[]) {
+  const categoryOptions = categoryList
     .map((c) => ({ slug: c.slug, name: c.name, count: catalog.filter((p) => p.category === c.slug).length }))
     .filter((c) => c.count > 0);
 
@@ -76,17 +79,22 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
   };
 }
 
-export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const filters = parseFilters(await searchParams);
-  const singleCategory =
-    filters.category.length === 1 ? categories.find((c) => c.slug === filters.category[0]) : undefined;
-
-  const { categoryOptions, brandOptions, ramOptions, storageOptions } = buildCatalogFacets();
-  const categoryLabels = Object.fromEntries(categories.map((c) => [c.slug, c.name]));
-
+function getLocalPage(filters: ParsedFilters) {
   const filtered = filterProducts(catalog, filters);
   const sorted = sortProducts(filtered, filters.sort);
-  const { items, page, pageCount, total } = paginate(sorted, filters.page, PAGE_SIZE);
+  return paginate(sorted, filters.page, PAGE_SIZE);
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const filters = parseFilters(await searchParams);
+  const categoryList = (await fetchCategories()) ?? categories;
+  const singleCategory =
+    filters.category.length === 1 ? categoryList.find((c) => c.slug === filters.category[0]) : undefined;
+
+  const { categoryOptions, brandOptions, ramOptions, storageOptions } = buildCatalogFacets(categoryList);
+  const categoryLabels = Object.fromEntries(categoryList.map((c) => [c.slug, c.name]));
+
+  const { items, page, pageCount, total } = (await fetchProducts(filters)) ?? getLocalPage(filters);
 
   const title = singleCategory ? singleCategory.name : "All products";
   const breadcrumbItems = [

@@ -27,6 +27,16 @@ export interface ParsedFilters {
   page: number;
 }
 
+export const emptyFilters: ParsedFilters = {
+  category: [],
+  brand: [],
+  ram: [],
+  storage: [],
+  inStockOnly: false,
+  sort: "relevance",
+  page: 1,
+};
+
 export type RawSearchParams = { [key: string]: string | string[] | undefined };
 
 function first(value: string | string[] | undefined): string | undefined {
@@ -147,7 +157,7 @@ export function clearedFilterPatch(): Partial<ParsedFilters> {
   return CLEARED_FILTERS;
 }
 
-function filtersToQueryString(filters: ParsedFilters): string {
+export function filtersToQueryString(filters: ParsedFilters): string {
   const params = new URLSearchParams();
   filters.category.forEach((c) => params.append("category", c));
   filters.brand.forEach((b) => params.append("brand", b));

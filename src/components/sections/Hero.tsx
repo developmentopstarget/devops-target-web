@@ -3,6 +3,7 @@ import { CheckIcon, LaptopIcon } from "@/components/ui/icons";
 import { PriceTag } from "@/components/commerce/PriceTag";
 import { storeConfig } from "@/config/store";
 import { dealsOfTheWeek, featuredDealSlug } from "@/data/products";
+import { fetchProductBySlug } from "@/lib/api/products";
 
 const trustPoints = [
   "Same-day in-store pickup",
@@ -10,8 +11,9 @@ const trustPoints = [
   "1-year local warranty & support",
 ];
 
-export function Hero() {
-  const featured = dealsOfTheWeek.find((product) => product.slug === featuredDealSlug);
+export async function Hero() {
+  const apiResult = await fetchProductBySlug(featuredDealSlug);
+  const featured = apiResult?.product ?? dealsOfTheWeek.find((product) => product.slug === featuredDealSlug);
 
   return (
     <section className="pt-9 pb-2">
