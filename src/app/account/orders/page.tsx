@@ -6,55 +6,33 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { TruckIcon } from "@/components/ui/icons";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/currency";
-
-interface OrderItem {
-  productId: string;
-  slug: string;
-  name: string;
-  price: number;
-  qty: number;
-  image: string;
-}
-
-interface Order {
-  orderNumber: string;
-  placedAt: string;
-  email: string;
-  deliveryMethod: "pickup" | "delivery";
-  items: OrderItem[];
-  subtotal: number;
-  discount: number;
-  deliveryFee: number;
-  tax: number;
-  total: number;
-  status: "placed" | "paid" | "fulfilling" | "completed" | "cancelled";
-}
-
-const statusMap: Record<Order["status"], { variant: "info" | "success" | "warning" | "danger"; label: string }> = {
-  placed: { variant: "info", label: "Placed" },
-  paid: { variant: "info", label: "Paid" },
-  fulfilling: { variant: "warning", label: "Processing" },
-  completed: { variant: "success", label: "Delivered" },
-  cancelled: { variant: "danger", label: "Cancelled" },
-};
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { getOrderStatusLabel, mapApiOrderToAccountOrder, type ApiOrder, type CheckoutOrder } from "@/lib/checkout";
 
 export default function OrdersPage() {
   const toast = useToast();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const { user } = useAuth();
+  const [orders, setOrders] = useState<CheckoutOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const fetchOrders = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
         const res = await fetch("/api/orders");
         if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        setOrders(data);
+        const data = (await res.json()) as ApiOrder[];
+        setOrders(data.map((order) => mapApiOrderToAccountOrder(order, user?.email ?? "")));
       } catch {
+        setError("Could not load your orders.");
         toast.show("Could not load your orders.", "error");
       } finally {
         setIsLoading(false);
@@ -62,7 +40,7 @@ export default function OrdersPage() {
     };
 
     fetchOrders();
-  }, [toast]);
+  }, [toast, user?.email, reloadKey]);
 
   const formatDate = (isoString: string) => {
     return new Date(isoString).toLocaleDateString("en-US", {
@@ -110,6 +88,8 @@ export default function OrdersPage() {
             </Card>
           ))}
         </div>
+      ) : error ? (
+        <ErrorBanner message={error} onRetry={() => setReloadKey((k) => k + 1)} />
       ) : orders.length === 0 ? (
         <EmptyState
           icon={<TruckIcon className="h-6 w-6" />}
@@ -125,8 +105,8 @@ export default function OrdersPage() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => {
-            const statusConfig = statusMap[order.status] || { variant: "neutral", label: order.status };
-            const totalQty = order.items.reduce((sum, item) => sum + item.qty, 0);
+            const statusConfig = getOrderStatusLabel(order.rawStatus ?? order.status);
+            const totalQty = order.items.reduce((sum, item) => sum + item.quantity, 0);
 
             return (
               <Card key={order.orderNumber} className="overflow-hidden border border-border">
@@ -174,12 +154,14 @@ export default function OrdersPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <h4 className="text-[13.5px] font-bold text-primary truncate hover:text-accent">
-                            <Link href={`/products/${item.slug}`}>
-                              {item.name}
-                            </Link>
+                            {item.slug ? (
+                              <Link href={`/products/${item.slug}`}>{item.name}</Link>
+                            ) : (
+                              item.name
+                            )}
                           </h4>
                           <p className="text-xs text-secondary mt-0.5">
-                            Quantity: {item.qty} · {formatCurrency(item.price)} each
+                            Quantity: {item.quantity} · {formatCurrency(item.unitPrice)} each
                           </p>
                         </div>
                       </div>

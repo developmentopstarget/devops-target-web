@@ -1,72 +1,46 @@
 "use client";
 
 import { useToast } from "@/components/ui/Toast";
+import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { OrderStatusStepper } from "@/components/commerce/OrderStatusStepper";
 import { TruckIcon } from "@/components/ui/icons";
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/currency";
-
-interface OrderItem {
-  productId: string;
-  slug: string;
-  name: string;
-  price: number;
-  qty: number;
-  image: string;
-}
-
-interface Address {
-  firstName: string;
-  lastName: string;
-  line1: string;
-  city: string;
-  postalCode: string;
-  phone: string;
-}
-
-interface PickupContact {
-  firstName: string;
-  lastName: string;
-  phone: string;
-}
-
-interface Order {
-  orderNumber: string;
-  placedAt: string;
-  email: string;
-  deliveryMethod: "pickup" | "delivery";
-  address?: Address;
-  pickupContact?: PickupContact;
-  items: OrderItem[];
-  subtotal: number;
-  discount: number;
-  promoCode?: string;
-  deliveryFee: number;
-  tax: number;
-  total: number;
-  status: "placed" | "paid" | "fulfilling" | "completed";
-}
+import { useAuth } from "@/lib/auth/AuthProvider";
+import {
+  getOrderStatusLabel,
+  mapApiOrderToAccountOrder,
+  type ApiOrder,
+  type CheckoutOrder,
+} from "@/lib/checkout";
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: orderId } = use(params);
   const toast = useToast();
-  const [order, setOrder] = useState<Order | null>(null);
+  const { user } = useAuth();
+  const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const fetchOrder = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
         const res = await fetch("/api/orders");
         if (!res.ok) throw new Error("Failed to fetch");
-        const data = (await res.json()) as Order[];
-        const found = data.find((o) => o.orderNumber === orderId);
-        setOrder(found || null);
+        const data = (await res.json()) as ApiOrder[];
+        const found = data.find((o) => o.number === orderId);
+        setOrder(found ? mapApiOrderToAccountOrder(found, user?.email ?? "") : null);
       } catch {
+        setError("Could not load order details.");
         toast.show("Could not load order details.", "error");
       } finally {
         setIsLoading(false);
@@ -74,7 +48,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     };
 
     fetchOrder();
-  }, [orderId, toast]);
+  }, [orderId, toast, user?.email, reloadKey]);
 
   const formatDate = (isoString: string) => {
     return new Date(isoString).toLocaleDateString("en-US", {
@@ -102,6 +76,14 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     );
   }
 
+  if (error) {
+    return (
+      <div className="max-w-full overflow-x-hidden box-border space-y-6 px-4">
+        <ErrorBanner message={error} onRetry={() => setReloadKey((k) => k + 1)} />
+      </div>
+    );
+  }
+
   if (!order) {
     return (
       <EmptyState
@@ -117,6 +99,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       />
     );
   }
+
+  const statusConfig = getOrderStatusLabel(order.rawStatus ?? order.status);
 
   return (
     <div className="max-w-full overflow-x-hidden box-border space-y-6 px-4">
@@ -146,9 +130,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
       {/* Status Card with Stepper */}
       <Card className="p-4 sm:p-5 border border-border">
-        <h2 className="mb-6 text-sm font-bold uppercase tracking-wider text-secondary">
-          Delivery Status Tracker
-        </h2>
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-secondary">
+            Delivery Status Tracker
+          </h2>
+          <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
+        </div>
         <div className="py-2">
           <OrderStatusStepper
             status={order.status}
@@ -160,7 +147,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column: Items and Shipping details */}
         <div className="space-y-6 lg:col-span-2">
-          
+
           {/* Order Items */}
           <Card header={<h2 className="text-base font-bold text-primary">Order Items</h2>}>
             <div className="divide-y divide-border">
@@ -171,17 +158,19 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="text-[13.5px] font-bold text-primary truncate hover:text-accent">
-                      <Link href={`/products/${item.slug}`}>
-                        {item.name}
-                      </Link>
+                      {item.slug ? (
+                        <Link href={`/products/${item.slug}`}>{item.name}</Link>
+                      ) : (
+                        item.name
+                      )}
                     </h3>
                     <p className="text-xs text-secondary mt-0.5">
-                      Quantity: {item.qty} · {formatCurrency(item.price)} each
+                      Quantity: {item.quantity} · {formatCurrency(item.unitPrice)} each
                     </p>
                   </div>
                   <div className="text-end">
                     <p className="text-[13.5px] font-bold font-mono text-primary">
-                      {formatCurrency(item.price * item.qty)}
+                      {formatCurrency(item.unitPrice * item.quantity)}
                     </p>
                   </div>
                 </div>
@@ -192,7 +181,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           {/* Delivery Method and Contact Info */}
           <Card header={<h2 className="text-base font-bold text-primary">Fulfillment Details</h2>}>
             <div className="grid gap-6 sm:grid-cols-2">
-              
+
               <div>
                 <h3 className="text-xs font-bold text-secondary uppercase tracking-wider mb-2">
                   Fulfillment Method
@@ -213,29 +202,43 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                     <h3 className="text-xs font-bold text-secondary uppercase tracking-wider mb-2">
                       Pickup Contact
                     </h3>
-                    <p className="text-[13.5px] font-bold text-primary">
-                      {order.pickupContact?.firstName} {order.pickupContact?.lastName}
-                    </p>
-                    <p className="text-xs font-mono text-secondary mt-1">
-                      {order.pickupContact?.phone}
-                    </p>
+                    {order.pickupContact ? (
+                      <>
+                        <p className="text-[13.5px] font-bold text-primary">
+                          {order.pickupContact.firstName} {order.pickupContact.lastName}
+                        </p>
+                        <p className="text-xs font-mono text-secondary mt-1">
+                          {order.pickupContact.phone}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-xs text-secondary">
+                        Contact details on file with your account.
+                      </p>
+                    )}
                   </>
                 ) : (
                   <>
                     <h3 className="text-xs font-bold text-secondary uppercase tracking-wider mb-2">
                       Shipping Address
                     </h3>
-                    <p className="text-[13.5px] font-bold text-primary">
-                      {order.address?.firstName} {order.address?.lastName}
-                    </p>
-                    <p className="text-[13px] text-secondary mt-0.5 leading-relaxed">
-                      {order.address?.line1}
-                      <br />
-                      {order.address?.city}, {order.address?.postalCode}
-                    </p>
-                    <p className="text-xs font-mono text-secondary mt-1">
-                      {order.address?.phone}
-                    </p>
+                    {order.address ? (
+                      <>
+                        <p className="text-[13.5px] font-bold text-primary">
+                          {order.address.firstName} {order.address.lastName}
+                        </p>
+                        <p className="text-[13px] text-secondary mt-0.5 leading-relaxed">
+                          {order.address.line1}
+                          <br />
+                          {order.address.city}, {order.address.postalCode}
+                        </p>
+                        <p className="text-xs font-mono text-secondary mt-1">
+                          {order.address.phone}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-xs text-secondary">No address on file for this order.</p>
+                    )}
                   </>
                 )}
               </div>

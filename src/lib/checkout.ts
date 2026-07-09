@@ -35,6 +35,10 @@ export interface CheckoutOrder {
   tax: number;
   total: number;
   status: OrderStatus;
+  // Django's raw status string (see ApiOrder), kept alongside the coarse `status`
+  // above so order-history views can show the full customer-facing vocabulary
+  // (see getOrderStatusLabel) while the stepper keeps using the 4-stage version.
+  rawStatus?: string;
 }
 
 // Placeholders — real rates/fees come from the Django API + tax service later.
@@ -102,19 +106,43 @@ export function readOrder(): CheckoutOrder | null {
   }
 }
 
-// Shape returned by Django's OrderSerializer (POST /api/orders/ via the Next proxy).
+// Shape returned by Django's OrderItemSerializer — nested under ApiOrder.items.
+// Decimal fields come back as strings (DRF's default DecimalField behavior).
+export interface ApiOrderItem {
+  id: number;
+  product: string | null;
+  name: string;
+  sku: string;
+  unit_price: string;
+  quantity: number;
+  line_total: string;
+}
+
+// Shape of Order.shipping_address (a JSONField) — empty object for pickup orders.
+export interface ApiShippingAddress {
+  full_name?: string;
+  line1?: string;
+  line2?: string;
+  city?: string;
+  postal_code?: string;
+  phone?: string;
+}
+
+// Shape returned by Django's OrderSerializer (GET/POST /api/orders/ via the Next proxy).
 // Decimal fields come back as strings (DRF's default DecimalField behavior).
 export interface ApiOrder {
   id: number;
   number: string;
   status: string;
   fulfillment: CheckoutDeliveryMethod;
+  shipping_address: ApiShippingAddress;
   subtotal: string;
   discount: string;
   delivery_fee: string;
   tax: string;
   total: string;
   promo_code: string;
+  items: ApiOrderItem[];
   created_at: string;
 }
 
@@ -133,6 +161,28 @@ const API_ORDER_STATUS_MAP: Record<string, OrderStatus> = {
 
 export function mapApiOrderStatus(status: string): OrderStatus {
   return API_ORDER_STATUS_MAP[status] ?? "placed";
+}
+
+export type OrderStatusBadgeVariant = "neutral" | "accent" | "success" | "warning" | "danger" | "info";
+
+// Django's full order-status vocabulary (api/backend shop/models.py: ORDER_STATUS_CHOICES),
+// mapped to customer-facing copy. Broader than the 4-stage OrderStatus above, which only
+// exists to drive the OrderStatusStepper's progress bar.
+const ORDER_STATUS_LABELS: Record<string, { variant: OrderStatusBadgeVariant; label: string }> = {
+  pending: { variant: "info", label: "Processing" },
+  pending_payment: { variant: "warning", label: "Awaiting Payment" },
+  paid: { variant: "info", label: "Paid" },
+  failed: { variant: "danger", label: "Payment Failed" },
+  preparing: { variant: "warning", label: "Preparing" },
+  ready: { variant: "warning", label: "Ready" },
+  shipped: { variant: "warning", label: "Shipped" },
+  delivered: { variant: "success", label: "Delivered" },
+  cancelled: { variant: "danger", label: "Cancelled" },
+  refunded: { variant: "neutral", label: "Refunded" },
+};
+
+export function getOrderStatusLabel(status: string): { variant: OrderStatusBadgeVariant; label: string } {
+  return ORDER_STATUS_LABELS[status] ?? { variant: "neutral", label: status };
 }
 
 // Builds the local CheckoutOrder shape the confirmation UI already renders,
@@ -163,6 +213,69 @@ export function mapApiOrderToCheckoutOrder(
     tax: Number(apiOrder.tax),
     total: Number(apiOrder.total),
     status: mapApiOrderStatus(apiOrder.status),
+    rawStatus: apiOrder.status,
+  };
+}
+
+function splitFullName(fullName?: string): { firstName: string; lastName: string } {
+  const trimmed = (fullName ?? "").trim();
+  if (!trimmed) return { firstName: "", lastName: "" };
+  const [firstName, ...rest] = trimmed.split(/\s+/);
+  return { firstName, lastName: rest.join(" ") };
+}
+
+export function mapApiShippingAddressToCheckoutAddress(
+  address: ApiShippingAddress | undefined,
+): CheckoutAddress | undefined {
+  if (!address || !address.line1) return undefined;
+  const { firstName, lastName } = splitFullName(address.full_name);
+  return {
+    firstName,
+    lastName,
+    line1: address.line1,
+    city: address.city ?? "",
+    postalCode: address.postal_code ?? "",
+    phone: address.phone ?? "",
+  };
+}
+
+export function mapApiOrderItemsToCartItems(items: ApiOrderItem[]): CartItem[] {
+  return items.map((item) => ({
+    productId: String(item.id),
+    slug: item.product ?? "",
+    name: item.name,
+    spec: item.sku,
+    unitPrice: Number(item.unit_price),
+    quantity: item.quantity,
+    maxStock: item.quantity,
+    stock: "in-stock",
+  }));
+}
+
+// Self-contained mapper for order-history views (list/detail pages): unlike
+// mapApiOrderToCheckoutOrder above, it doesn't need client-side cart/contact context
+// captured at purchase time — it reads items and the shipping address straight off
+// the API order. Django has no separate pickup-contact record, so pickupContact is
+// always omitted for pickup orders.
+export function mapApiOrderToAccountOrder(apiOrder: ApiOrder, email: string): CheckoutOrder {
+  return {
+    orderNumber: apiOrder.number,
+    placedAt: apiOrder.created_at,
+    email,
+    deliveryMethod: apiOrder.fulfillment,
+    address:
+      apiOrder.fulfillment === "delivery"
+        ? mapApiShippingAddressToCheckoutAddress(apiOrder.shipping_address)
+        : undefined,
+    items: mapApiOrderItemsToCartItems(apiOrder.items),
+    subtotal: Number(apiOrder.subtotal),
+    discount: Number(apiOrder.discount),
+    promoCode: apiOrder.promo_code || undefined,
+    deliveryFee: Number(apiOrder.delivery_fee),
+    tax: Number(apiOrder.tax),
+    total: Number(apiOrder.total),
+    status: mapApiOrderStatus(apiOrder.status),
+    rawStatus: apiOrder.status,
   };
 }
 
