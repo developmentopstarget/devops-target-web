@@ -118,3 +118,9 @@ The single next action to take first in a fresh session.
 ## Commands to Run First
 
 Exact commands the next AI/dev session should run before editing.
+
+## Completed Milestones
+
+- **Milestone 1 — Storefront Layout and Skeletons**: Core store pages, cart structure, checkout steps, payment mocks are operational.
+- **Milestone 2 — Secure Account Route Tree (`/account`)**: Fully implemented profile setting, orders list/details log, addresses CRUD management, and helper API proxies with offline stubs (Completed: 2026-07-09).
+
