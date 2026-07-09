@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -13,6 +11,7 @@ import { FilterDrawer } from "@/components/commerce/FilterDrawer";
 import { SortDropdown } from "@/components/commerce/SortDropdown";
 import { ActiveFilterChips } from "@/components/commerce/ActiveFilterChips";
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { CatalogHeader } from "@/components/commerce/CatalogHeader";
 import { categories } from "@/data/categories";
 import { catalog } from "@/data/products";
 import { storeConfig } from "@/config/store";
@@ -106,20 +105,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumbItems} />
-      <AnnouncementBar />
       <Navbar />
       <main className="flex-1">
         <Container>
           <Breadcrumbs items={breadcrumbItems} />
 
           <div className="flex flex-wrap items-end justify-between gap-4 pb-4.5 pt-1.5">
-            <div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-primary">{title}</h1>
-              <p className="mt-1 text-[13px] text-secondary">
-                <span className="font-mono font-semibold text-primary">{total}</span> products · in{" "}
-                {storeConfig.city} &amp; online
-              </p>
-            </div>
+            <CatalogHeader total={total} categoryName={singleCategory?.name} />
           </div>
 
           <div className="pb-3.5 lg:hidden">
@@ -170,7 +162,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </Container>
       </main>
       <Footer />
-      <MobileBottomNav />
     </>
   );
 }

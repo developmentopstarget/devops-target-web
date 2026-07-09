@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface BreadcrumbItem {
   label: string;
@@ -11,6 +14,17 @@ export interface BreadcrumbsProps {
 }
 
 export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
+  const { t } = useLanguage();
+
+  const getBreadcrumbLabel = (label: string) => {
+    const lower = label.toLowerCase();
+    if (lower === "home") return t("home");
+    if (lower === "shop") return t("shop");
+    if (lower === "account") return t("account");
+    if (lower === "profile") return t("profile");
+    return label;
+  };
+
   return (
     <nav
       aria-label="Breadcrumb"
@@ -20,6 +34,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
     >
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
+        const translatedLabel = getBreadcrumbLabel(item.label);
         return (
           <span key={item.label} className="flex items-center gap-1.75">
             {index > 0 && (
@@ -29,11 +44,11 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
             )}
             {item.href && !isLast ? (
               <Link href={item.href} className="hover:text-secondary">
-                {item.label}
+                {translatedLabel}
               </Link>
             ) : (
               <span className="font-semibold text-secondary" aria-current={isLast ? "page" : undefined}>
-                {item.label}
+                {translatedLabel}
               </span>
             )}
           </span>

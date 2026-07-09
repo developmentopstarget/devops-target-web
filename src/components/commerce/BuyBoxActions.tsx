@@ -9,6 +9,7 @@ import { WishlistButton } from "@/components/commerce/WishlistButton";
 import { maxQuantityForStock, useCart } from "@/components/commerce/CartProvider";
 import { useToast } from "@/components/ui/Toast";
 import type { Product } from "@/data/products";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface BuyBoxActionsProps {
   product: Product;
@@ -18,6 +19,7 @@ export function BuyBoxActions({ product }: BuyBoxActionsProps) {
   const { addItem } = useCart();
   const { show } = useToast();
   const router = useRouter();
+  const { t, lang } = useLanguage();
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const outOfStock = product.stock === "out-of-stock";
@@ -26,7 +28,10 @@ export function BuyBoxActions({ product }: BuyBoxActionsProps) {
   function handleAddToCart() {
     setAdding(true);
     addItem(product, qty);
-    show(`Added ${qty} × "${product.name}" to cart`, "success");
+    const toastMsg = lang === "fa"
+      ? `تعداد ${qty} عدد "${product.name}" به سبد خرید اضافه شد`
+      : `Added ${qty} × "${product.name}" to cart`;
+    show(toastMsg, "success");
     window.setTimeout(() => setAdding(false), 600);
   }
 
@@ -38,7 +43,7 @@ export function BuyBoxActions({ product }: BuyBoxActionsProps) {
   return (
     <div className="mb-4.5">
       <div className="mb-3.5 flex items-center gap-3.5">
-        <span className="text-[13px] font-semibold text-secondary">Quantity</span>
+        <span className="text-[13px] font-semibold text-secondary">{t("quantity")}</span>
         <QtyStepper value={qty} min={1} max={outOfStock ? 1 : maxQty} onChange={setQty} disabled={outOfStock} />
       </div>
 
@@ -52,12 +57,12 @@ export function BuyBoxActions({ product }: BuyBoxActionsProps) {
             loading={adding}
             onClick={handleAddToCart}
           >
-            {outOfStock ? "Notify me" : "Add to cart"}
+            {outOfStock ? (lang === "fa" ? "مطلعم کن" : "Notify me") : t("addToCart")}
           </Button>
           <WishlistButton productName={product.name} />
         </div>
         <Button type="button" variant="secondary" fullWidth disabled={outOfStock} onClick={handleBuyNow}>
-          Buy now
+          {t("buyNow")}
         </Button>
       </div>
     </div>

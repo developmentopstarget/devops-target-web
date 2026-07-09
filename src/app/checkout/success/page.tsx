@@ -21,7 +21,7 @@ export default function CheckoutSuccessPage() {
     <>
       <CheckoutHeader />
       <main className="flex-1">
-        <Container className="max-w-2xl py-10">
+        <Container className="max-w-2xl py-10 max-w-full overflow-x-hidden box-border">
           {!mounted ? null : !order ? (
             <EmptyState
               icon={<CartIcon className="h-6 w-6" aria-hidden="true" />}

@@ -3,38 +3,54 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CartIcon, HomeIcon, ShopIcon, UserIcon } from "@/components/ui/icons";
-import { bottomNav } from "@/config/nav";
+import { useLanguage } from "@/lib/useLanguage";
 
 const icons = {
   home: HomeIcon,
   shop: ShopIcon,
   cart: CartIcon,
-  user: UserIcon,
+  profile: UserIcon,
 } as const;
+
+interface MobileTab {
+  label: string;
+  labelFa: string;
+  href: string;
+  icon: keyof typeof icons;
+}
+
+const mobileTabs: readonly MobileTab[] = [
+  { label: "Home", labelFa: "خانه", href: "/", icon: "home" },
+  { label: "Shop", labelFa: "فروشگاه", href: "/products", icon: "shop" },
+  { label: "Cart", labelFa: "سبد خرید", href: "/cart", icon: "cart" },
+  { label: "Profile", labelFa: "پروفایل", href: "/account", icon: "profile" },
+] as const;
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const { isRtl } = useLanguage();
 
   return (
     <nav
       aria-label="Mobile"
-      className="sticky bottom-0 z-40 flex justify-around border-t border-border bg-surface px-1 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 lg:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-surface border-t flex justify-around items-center px-4 max-w-full"
     >
-      {bottomNav.map((item) => {
+      {mobileTabs.map((item) => {
         const Icon = icons[item.icon];
         const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+        const label = isRtl ? item.labelFa || item.label : item.label;
         return (
           <Link
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={[
-              "flex flex-1 flex-col items-center gap-0.5 text-[10.5px] font-semibold",
-              active ? "text-accent" : "text-tertiary",
+              "flex flex-1 flex-col items-center gap-0.5 text-[12px] font-semibold transition-colors",
+              active ? "text-accent" : "text-tertiary hover:text-primary",
             ].join(" ")}
           >
             <Icon className="h-[21px] w-[21px]" aria-hidden="true" />
-            {item.label}
+            {label}
           </Link>
         );
       })}

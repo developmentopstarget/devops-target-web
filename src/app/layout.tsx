@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { CartProvider } from "@/components/commerce/CartProvider";
 import { ToastProvider } from "@/components/ui/Toast";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import "./globals.css";
 
 const inter = Inter({
@@ -65,11 +66,16 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-bg text-primary">
+      <body className="max-w-full overflow-x-hidden flex flex-col bg-bg text-primary">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <AuthProvider>
             <CartProvider>
-              <ToastProvider>{children}</ToastProvider>
+              <ToastProvider>
+                <div className="flex-1 flex flex-col pt-14 pb-16">
+                  {children}
+                </div>
+                <MobileBottomNav />
+              </ToastProvider>
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>

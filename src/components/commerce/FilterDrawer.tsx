@@ -7,6 +7,7 @@ import { IconButton } from "@/components/ui/IconButton";
 import { CloseIcon, FilterIcon } from "@/components/ui/icons";
 import { FilterPanel, type FilterPanelProps } from "@/components/commerce/FilterPanel";
 import { countActiveDimensions } from "@/lib/products-filter";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface FilterDrawerProps extends FilterPanelProps {
   resultCount: number;
@@ -16,6 +17,7 @@ export function FilterDrawer({ resultCount, ...panelProps }: FilterDrawerProps) 
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const activeCount = countActiveDimensions(panelProps.filters);
+  const { t, lang } = useLanguage();
 
   useEffect(() => {
     if (!open) return;
@@ -37,6 +39,13 @@ export function FilterDrawer({ resultCount, ...panelProps }: FilterDrawerProps) 
     setOpen(false);
   }
 
+  const filtersLabel = t("filters");
+  const clearLabel = lang === "fa" ? "پاک کردن" : "Clear";
+  const closeLabel = lang === "fa" ? "بستن فیلترها" : "Close filters";
+  const showResultsLabel = lang === "fa"
+    ? `نمایش ${resultCount} نتیجه`
+    : `Show ${resultCount} results`;
+
   return (
     <>
       <Button
@@ -46,28 +55,28 @@ export function FilterDrawer({ resultCount, ...panelProps }: FilterDrawerProps) 
         iconStart={<FilterIcon className="h-4 w-4" aria-hidden="true" />}
         onClick={() => setOpen(true)}
       >
-        Filters{activeCount > 0 ? ` (${activeCount})` : ""}
+        {filtersLabel}{activeCount > 0 ? ` (${activeCount})` : ""}
       </Button>
 
       {open && (
         <div className="fixed inset-0 z-50">
           <button
             type="button"
-            aria-label="Close filters"
+            aria-label={closeLabel}
             className="absolute inset-0 bg-slate-950/50"
             onClick={() => setOpen(false)}
           />
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Filters"
+            aria-label={filtersLabel}
             className="absolute inset-y-0 end-0 flex w-[86%] max-w-85 flex-col bg-surface shadow-lg"
           >
             <div className="flex items-center justify-between border-b border-border p-4">
-              <h2 className="text-base font-bold text-primary">Filters</h2>
+              <h2 className="text-base font-bold text-primary">{filtersLabel}</h2>
               <IconButton
                 icon={<CloseIcon className="h-[18px] w-[18px]" aria-hidden="true" />}
-                label="Close filters"
+                label={closeLabel}
                 onClick={() => setOpen(false)}
               />
             </div>
@@ -76,10 +85,10 @@ export function FilterDrawer({ resultCount, ...panelProps }: FilterDrawerProps) 
             </div>
             <div className="flex gap-2.5 border-t border-border p-4">
               <Button type="button" variant="secondary" fullWidth onClick={clearAll}>
-                Clear
+                {clearLabel}
               </Button>
               <Button type="button" variant="primary" fullWidth onClick={() => setOpen(false)}>
-                Show {resultCount} results
+                {showResultsLabel}
               </Button>
             </div>
           </div>

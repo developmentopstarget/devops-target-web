@@ -88,9 +88,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-full overflow-x-hidden box-border space-y-6 px-4">
         <div className="h-6 w-1/4 bg-surface-2 rounded animate-pulse" />
-        <Card className="p-8 space-y-6">
+        <Card className="p-4 sm:p-8 space-y-6">
           <div className="h-6 w-1/3 bg-surface-2 rounded animate-pulse" />
           <div className="h-10 bg-surface-2 rounded animate-pulse" />
           <div className="grid gap-6 sm:grid-cols-2">
@@ -119,7 +119,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-full overflow-x-hidden box-border space-y-6 px-4">
       {/* Breadcrumbs */}
       <Breadcrumbs
         items={[
@@ -145,7 +145,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {/* Status Card with Stepper */}
-      <Card className="p-5 border border-border">
+      <Card className="p-4 sm:p-5 border border-border">
         <h2 className="mb-6 text-sm font-bold uppercase tracking-wider text-secondary">
           Delivery Status Tracker
         </h2>

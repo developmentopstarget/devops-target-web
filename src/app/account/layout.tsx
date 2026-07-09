@@ -3,14 +3,11 @@
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { use, useEffect } from "react";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
+import { useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-import { Container } from "@/components/layout/Container";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { useLanguage } from "@/lib/useLanguage";
 import {
   UserIcon,
   MapPinIcon,
@@ -64,6 +61,7 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   useEffect(() => {
     // If auth state is fully loaded and there is no user, redirect to login
@@ -75,16 +73,14 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
   if (loading) {
     return (
       <>
-        <AnnouncementBar />
         <Navbar />
         <main className="flex-grow flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-4">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-accent border-t-transparent" />
-            <p className="text-sm text-secondary font-medium animate-pulse">Loading secure account session...</p>
+            <p className="text-sm text-secondary font-medium animate-pulse">{t("loadingSession")}</p>
           </div>
         </main>
         <Footer />
-        <MobileBottomNav />
       </>
     );
   }
@@ -100,37 +96,37 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
 
   const menuItems = [
     {
-      label: "Profile & Settings",
+      labelKey: "profileAndSettings" as const,
       href: "/account",
       icon: <UserIcon className="h-4.5 w-4.5" />,
       exact: true,
     },
     {
-      label: "Order History",
+      labelKey: "orderHistory" as const,
       href: "/account/orders",
       icon: <TruckIcon className="h-4.5 w-4.5" />,
       exact: false,
     },
     {
-      label: "My Addresses",
+      labelKey: "myAddresses" as const,
       href: "/account/addresses",
       icon: <MapPinIcon className="h-4.5 w-4.5" />,
       exact: false,
     },
     {
-      label: "Security & 2FA",
+      labelKey: "security2FA" as const,
       href: "/account/security",
       icon: <ShieldCheckIcon className="h-4.5 w-4.5" />,
       exact: false,
     },
     {
-      label: "Notifications",
+      labelKey: "notifications" as const,
       href: "/account/notifications",
       icon: <BellIcon className="h-4.5 w-4.5" />,
       exact: false,
     },
     {
-      label: "Wishlist",
+      labelKey: "wishlist" as const,
       href: "/account/wishlist",
       icon: <HeartIcon className="h-4.5 w-4.5" />,
       exact: false,
@@ -144,77 +140,73 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
 
   return (
     <>
-      <AnnouncementBar />
       <Navbar />
-      <main className="flex-1 bg-bg py-6 sm:py-10">
-        <Container>
-          <div className="grid gap-6 md:grid-cols-[260px_1fr] md:items-start lg:gap-8">
+      <main className="flex-1 bg-bg w-full max-w-full block px-2 mx-auto box-border overflow-x-hidden">
+        <div className="flex flex-col lg:flex-row gap-6 items-start py-4 lg:py-6">
+          
+          {/* Sidebar / Navigation Shell */}
+          <aside className="w-full lg:w-64 flex flex-col gap-6 shrink-0">
             
-            {/* Sidebar / Top Navigation Shell */}
-            <aside className="flex flex-col gap-6">
-              
-              {/* User Profile Summary Card */}
-              <Card className="overflow-hidden border border-border">
-                <div className="flex items-center gap-4 p-1">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-accent to-accent-hover text-white text-base font-bold shadow-sm">
-                    {initials}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h2 className="truncate text-[15px] font-bold text-primary">
-                      {user.username || "Account User"}
-                    </h2>
-                    <p className="truncate text-xs text-secondary">{user.email}</p>
-                  </div>
+            {/* User Profile Summary Card */}
+            <Card className="overflow-hidden border border-border">
+              <div className="flex items-center gap-4 p-1">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-accent to-accent-hover text-white text-base font-bold shadow-sm">
+                  {initials}
                 </div>
-              </Card>
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate text-[15px] font-bold text-primary">
+                    {user.username || t("profile")}
+                  </h2>
+                  <p className="truncate text-xs text-secondary">{user.email}</p>
+                </div>
+              </div>
+            </Card>
 
-              {/* Navigation Links Card */}
-              <Card className="p-1.5 border border-border">
-                <nav className="flex flex-row overflow-x-auto gap-1 pb-2 md:flex-col md:pb-0 scrollbar-none" aria-label="Account Navigation">
-                  {menuItems.map((item) => {
-                    const isActive = item.exact
-                      ? pathname === item.href
-                      : pathname.startsWith(item.href);
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={[
-                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-semibold transition-all whitespace-nowrap",
-                          isActive
-                            ? "bg-accent-soft text-accent shadow-sm"
-                            : "text-secondary hover:bg-surface-2 hover:text-primary",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                      >
-                        {item.icon}
-                        <span>{item.label}</span>
-                      </Link>
-                    );
-                  })}
-                  <div className="hidden md:block my-2 border-t border-border" />
-                  <button
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-semibold text-danger hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer whitespace-nowrap"
-                  >
-                    <LogOutIcon className="h-4.5 w-4.5" />
-                    <span>Sign Out</span>
-                  </button>
-                </nav>
-              </Card>
-            </aside>
+            {/* Navigation Links Card */}
+            <Card className="p-1.5 border border-border">
+              <nav className="flex flex-row overflow-x-auto gap-1 pb-2 lg:flex-col lg:pb-0 scrollbar-none" aria-label="Account Navigation">
+                {menuItems.map((item) => {
+                  const isActive = item.exact
+                    ? pathname === item.href
+                    : pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={[
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-semibold transition-all whitespace-nowrap",
+                        isActive
+                          ? "bg-accent-soft text-accent shadow-sm"
+                          : "text-secondary hover:bg-surface-2 hover:text-primary",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                    >
+                      {item.icon}
+                      <span>{t(item.labelKey)}</span>
+                    </Link>
+                  );
+                })}
+                <div className="hidden lg:block my-2 border-t border-border" />
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-semibold text-danger hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer whitespace-nowrap"
+                >
+                  <LogOutIcon className="h-4.5 w-4.5" />
+                  <span>{t("signOut")}</span>
+                </button>
+              </nav>
+            </Card>
+          </aside>
 
-            {/* Sub-route Content Area */}
-            <div className="min-w-0">
-              {children}
-            </div>
-
+          {/* Sub-route Content Area / Content Layout Shell */}
+          <div className="w-full max-w-full block px-2 mx-auto box-border overflow-x-hidden lg:flex-1">
+            {children}
           </div>
-        </Container>
+
+        </div>
       </main>
       <Footer />
-      <MobileBottomNav />
     </>
   );
 }

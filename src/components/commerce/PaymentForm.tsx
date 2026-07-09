@@ -92,7 +92,7 @@ const StripeFields = forwardRef<PaymentFormHandle>(function StripeFields(_props,
   return (
     <>
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-primary">Card number</label>
+        <label className="mb-1.5 block text-[15px] sm:text-sm font-medium text-primary">Card number</label>
         <div className="flex h-11 items-center rounded-[10px] border border-border-strong bg-bg px-3">
           <CardNumberElement
             options={style}
@@ -106,7 +106,7 @@ const StripeFields = forwardRef<PaymentFormHandle>(function StripeFields(_props,
       </div>
       <div className="mt-3 grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-primary">Expiry</label>
+          <label className="mb-1.5 block text-[15px] sm:text-sm font-medium text-primary">Expiry</label>
           <div className="flex h-11 items-center rounded-[10px] border border-border-strong bg-bg px-3">
             <CardExpiryElement
               options={style}
@@ -119,7 +119,7 @@ const StripeFields = forwardRef<PaymentFormHandle>(function StripeFields(_props,
           </div>
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-primary">CVC</label>
+          <label className="mb-1.5 block text-[15px] sm:text-sm font-medium text-primary">CVC</label>
           <div className="flex h-11 items-center rounded-[10px] border border-border-strong bg-bg px-3">
             <CardCvcElement
               options={style}

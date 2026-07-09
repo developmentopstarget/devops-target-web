@@ -135,11 +135,11 @@ export default function CheckoutPage() {
   return (
     <>
       <CheckoutHeader />
-      <main className="flex-1">
-        <Container>
+      <main className="flex-1 max-w-full overflow-x-hidden box-border">
+        <Container className="max-w-full overflow-x-hidden box-border">
           <h1 className="pb-1 pt-5.5 text-2xl font-extrabold tracking-tight text-primary">Checkout</h1>
-          <div className="grid gap-6 pb-14 pt-3.5 min-[920px]:grid-cols-[1fr_360px] min-[920px]:items-start">
-            <div className="flex flex-col gap-4">
+          <div className="grid gap-6 pb-14 pt-3.5 min-[920px]:grid-cols-[1fr_360px] min-[920px]:items-start max-w-full overflow-x-hidden box-border">
+            <div className="flex flex-col gap-4 max-w-full overflow-x-hidden box-border">
               <ContactStep
                 email={email}
                 onEmailChange={setEmail}

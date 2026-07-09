@@ -1,8 +1,11 @@
+"use client";
+
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
 import { StarIcon } from "@/components/ui/icons";
 import type { ProductReview } from "@/data/product-details";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface ReviewListProps {
   reviews: ProductReview[];
@@ -26,6 +29,8 @@ function formatDate(iso: string) {
 }
 
 export function ReviewList({ reviews, loading, error, onRetry, className }: ReviewListProps) {
+  const { t, lang } = useLanguage();
+
   if (error) {
     return <ErrorBanner message={error} onRetry={onRetry} />;
   }
@@ -51,8 +56,8 @@ export function ReviewList({ reviews, loading, error, onRetry, className }: Revi
     return (
       <EmptyState
         icon={<StarIcon className="h-5 w-5" aria-hidden="true" />}
-        title="Be the first to review"
-        description="Share what you think once you've tried this product."
+        title={t("beFirstReview")}
+        description={lang === "fa" ? "پس از استفاده از این محصول، نظر خود را با دیگران به اشتراک بگذارید." : "Share what you think once you've tried this product."}
       />
     );
   }

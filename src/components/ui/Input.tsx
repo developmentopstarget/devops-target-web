@@ -28,7 +28,7 @@ export function Input({
   return (
     <div className={wrapperClassName}>
       {label && (
-        <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-primary">
+        <label htmlFor={inputId} className="mb-1.5 block text-[15px] sm:text-sm font-medium text-primary">
           {label}
           {required && <span className="text-danger"> *</span>}
         </label>

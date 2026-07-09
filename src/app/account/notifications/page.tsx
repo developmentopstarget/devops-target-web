@@ -2,10 +2,10 @@
 
 import { useToast } from "@/components/ui/Toast";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useState } from "react";
+import { useLanguage } from "@/lib/useLanguage";
 
 // Simple Bell Icon
 function BellIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -27,8 +27,8 @@ function BellIcon(props: React.SVGProps<SVGSVGElement>) {
 
 interface NotificationItem {
   id: number;
-  title: string;
-  body: string;
+  titleKey: "orderPaidConfirmed" | "securityAlertNewDevice" | "specialOfferPCParts";
+  bodyKey: "orderPaidConfirmedBody" | "securityAlertNewDeviceBody" | "specialOfferPCPartsBody";
   time: string;
   read: boolean;
   type: "order" | "security" | "promo";
@@ -36,27 +36,28 @@ interface NotificationItem {
 
 export default function NotificationsPage() {
   const toast = useToast();
+  const { t, lang } = useLanguage();
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
       id: 1,
-      title: "Order Paid & Confirmed",
-      body: "Your order DT-893012 has been successfully paid and is currently processing in our warehouse.",
+      titleKey: "orderPaidConfirmed",
+      bodyKey: "orderPaidConfirmedBody",
       time: "2 hours ago",
       read: false,
       type: "order",
     },
     {
       id: 2,
-      title: "Security Alert: Login from New Device",
-      body: "A new login was detected from Springfield IP 192.168.1.100. If this wasn't you, change your password immediately.",
+      titleKey: "securityAlertNewDevice",
+      bodyKey: "securityAlertNewDeviceBody",
       time: "1 day ago",
       read: true,
       type: "security",
     },
     {
       id: 3,
-      title: "Special Offer: 10% Off PC Parts",
-      body: "Use promo code BUILD10 at checkout to save 10% on all components this week.",
+      titleKey: "specialOfferPCParts",
+      bodyKey: "specialOfferPCPartsBody",
       time: "3 days ago",
       read: true,
       type: "promo",
@@ -65,31 +66,46 @@ export default function NotificationsPage() {
 
   const handleMarkAllRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    toast.show("All notifications marked as read.", "success");
+    toast.show(t("markAllReadSuccess"), "success");
   };
 
   const handleClearAll = () => {
     setNotifications([]);
-    toast.show("Notifications cleared.", "info");
+    toast.show(t("notificationsCleared"), "info");
+  };
+
+  const translateTime = (timeStr: string) => {
+    if (lang !== "fa") return timeStr;
+    const digitsMap: Record<string, string> = {
+      "1": "۱", "2": "۲", "3": "۳", "4": "۴", "5": "۵", "6": "۶", "7": "۷", "8": "۸", "9": "۹", "0": "۰"
+    };
+    let result = timeStr;
+    Object.entries(digitsMap).forEach(([enDigit, faDigit]) => {
+      result = result.replaceAll(enDigit, faDigit);
+    });
+    result = result.replace("hours ago", t("hoursAgo"));
+    result = result.replace("days ago", t("daysAgo"));
+    result = result.replace("day ago", t("dayAgo"));
+    return result;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-full overflow-x-hidden box-border space-y-6 px-4">
       <Breadcrumbs
         items={[
-          { label: "Home", href: "/" },
-          { label: "Account", href: "/account" },
-          { label: "Notifications", href: "/account/notifications" },
+          { label: t("home"), href: "/" },
+          { label: t("account"), href: "/account" },
+          { label: t("notifications"), href: "/account/notifications" },
         ]}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-extrabold tracking-tight text-primary">
-            Notifications Center
+            {t("notificationsCenter")}
           </h1>
           <p className="text-[13px] text-secondary">
-            Stay updated with your orders, security alerts, and exclusive promos.
+            {t("notificationsCenterDesc")}
           </p>
         </div>
         {notifications.length > 0 && (
@@ -98,14 +114,14 @@ export default function NotificationsPage() {
               onClick={handleMarkAllRead}
               className="text-[12px] font-bold text-accent hover:text-accent-hover cursor-pointer"
             >
-              Mark all as read
+              {t("markAllRead")}
             </button>
             <span className="text-tertiary">·</span>
             <button
               onClick={handleClearAll}
               className="text-[12px] font-bold text-danger hover:opacity-80 cursor-pointer"
             >
-              Clear all
+              {t("clearAll")}
             </button>
           </div>
         )}
@@ -114,8 +130,8 @@ export default function NotificationsPage() {
       {notifications.length === 0 ? (
         <EmptyState
           icon={<BellIcon className="h-6 w-6 text-tertiary" />}
-          title="Inbox is clean"
-          description="You don't have any notifications at the moment."
+          title={t("inboxClean")}
+          description={t("inboxCleanDesc")}
           className="py-16"
         />
       ) : (
@@ -145,14 +161,14 @@ export default function NotificationsPage() {
                       item.read ? "font-bold text-primary" : "font-extrabold text-primary"
                     }`}
                   >
-                    {item.title}
+                    {t(item.titleKey)}
                   </h3>
                   <span className="shrink-0 text-[10.5px] font-medium text-secondary">
-                    {item.time}
+                    {translateTime(item.time)}
                   </span>
                 </div>
                 <p className="text-[13px] text-secondary mt-1 leading-relaxed">
-                  {item.body}
+                  {t(item.bodyKey)}
                 </p>
               </div>
               {!item.read && (

@@ -54,7 +54,7 @@ export default function SecurityPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-full overflow-x-hidden box-border space-y-6 px-4">
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },

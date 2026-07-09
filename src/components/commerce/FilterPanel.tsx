@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StarIcon } from "@/components/ui/icons";
+import { useLanguage } from "@/lib/useLanguage";
 import {
   clearedFilterPatch,
   formatStorage,
@@ -59,6 +60,7 @@ export function FilterPanel({
   className,
 }: FilterPanelProps) {
   const router = useRouter();
+  const { t, lang } = useLanguage();
 
   function go(patch: Partial<ParsedFilters>) {
     router.push(hrefWithPatch(pathname, filters, patch));
@@ -68,19 +70,21 @@ export function FilterPanel({
     <div className={className}>
       {showHeader && (
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-[15px] font-bold text-primary">Filters</h2>
+          <h2 className="text-[15px] font-bold text-primary">{t("filters")}</h2>
           <button
             type="button"
             onClick={() => go(clearedFilterPatch())}
             className="text-xs font-semibold text-accent hover:text-accent-hover"
           >
-            Clear all
+            {lang === "fa" ? "پاک کردن همه" : "Clear all"}
           </button>
         </div>
       )}
 
       <fieldset className="border-t border-border py-4 first:border-t-0 first:pt-0">
-        <legend className="mb-2.75 text-[13px] font-bold text-primary">Category</legend>
+        <legend className="mb-2.75 text-[13px] font-bold text-primary">
+          {lang === "fa" ? "دسته‌بندی" : "Category"}
+        </legend>
         <div className="flex flex-col">
           {categoryOptions.map((opt) => (
             <label key={opt.slug} className={optionRowClassName()}>
@@ -98,7 +102,9 @@ export function FilterPanel({
       </fieldset>
 
       <fieldset className="border-t border-border py-4">
-        <legend className="mb-2.75 text-[13px] font-bold text-primary">Price</legend>
+        <legend className="mb-2.75 text-[13px] font-bold text-primary">
+          {lang === "fa" ? "قیمت" : "Price"}
+        </legend>
         <PriceRangeInputs
           key={`${filters.priceMin ?? ""}-${filters.priceMax ?? ""}`}
           pathname={pathname}
@@ -108,7 +114,9 @@ export function FilterPanel({
 
       {brandOptions.length > 0 && (
         <fieldset className="border-t border-border py-4">
-          <legend className="mb-2.75 text-[13px] font-bold text-primary">Brand</legend>
+          <legend className="mb-2.75 text-[13px] font-bold text-primary">
+            {lang === "fa" ? "برند" : "Brand"}
+          </legend>
           <div className="flex flex-col">
             {brandOptions.map((opt) => (
               <label key={opt.name} className={optionRowClassName()}>
@@ -128,7 +136,9 @@ export function FilterPanel({
 
       {ramOptions.length > 0 && (
         <fieldset className="border-t border-border py-4">
-          <legend className="mb-2.75 text-[13px] font-bold text-primary">RAM</legend>
+          <legend className="mb-2.75 text-[13px] font-bold text-primary">
+            {lang === "fa" ? "رم" : "RAM"}
+          </legend>
           <div className="flex flex-wrap gap-1.75">
             {ramOptions.map((gb) => {
               const active = filters.ram.includes(gb);
@@ -150,7 +160,9 @@ export function FilterPanel({
 
       {storageOptions.length > 0 && (
         <fieldset className="border-t border-border py-4">
-          <legend className="mb-2.75 text-[13px] font-bold text-primary">Storage</legend>
+          <legend className="mb-2.75 text-[13px] font-bold text-primary">
+            {lang === "fa" ? "حافظه" : "Storage"}
+          </legend>
           <div className="flex flex-wrap gap-1.75">
             {storageOptions.map((gb) => {
               const active = filters.storage.includes(gb);
@@ -171,7 +183,9 @@ export function FilterPanel({
       )}
 
       <fieldset className="border-t border-border py-4">
-        <legend className="mb-2.75 text-[13px] font-bold text-primary">Rating</legend>
+        <legend className="mb-2.75 text-[13px] font-bold text-primary">
+          {lang === "fa" ? "امتیاز" : "Rating"}
+        </legend>
         <div className="flex flex-col">
           {ratingOptions.map((r) => (
             <label key={r} className={optionRowClassName()}>
@@ -187,7 +201,7 @@ export function FilterPanel({
                   <StarIcon key={i} className={`h-3 w-3 ${i < r ? "" : "opacity-25"}`} />
                 ))}
               </span>
-              {r} &amp; up
+              {lang === "fa" ? `${r} ستاره و بالاتر` : `${r} & up`}
             </label>
           ))}
         </div>
@@ -201,7 +215,7 @@ export function FilterPanel({
             onChange={() => go({ inStockOnly: !filters.inStockOnly })}
             className="h-4 w-4 accent-accent"
           />
-          In stock only
+          {lang === "fa" ? "فقط کالاهای موجود" : "In stock only"}
         </label>
       </div>
     </div>
@@ -210,6 +224,7 @@ export function FilterPanel({
 
 function PriceRangeInputs({ pathname, filters }: { pathname: string; filters: ParsedFilters }) {
   const router = useRouter();
+  const { lang } = useLanguage();
   const [min, setMin] = useState(filters.priceMin?.toString() ?? "");
   const [max, setMax] = useState(filters.priceMax?.toString() ?? "");
 
@@ -228,14 +243,14 @@ function PriceRangeInputs({ pathname, filters }: { pathname: string; filters: Pa
   return (
     <div className="flex items-center gap-2">
       <label className="sr-only" htmlFor="price-min">
-        Minimum price
+        {lang === "fa" ? "حداقل قیمت" : "Minimum price"}
       </label>
       <input
         id="price-min"
         type="number"
         inputMode="numeric"
         min={0}
-        placeholder="Min"
+        placeholder={lang === "fa" ? "حداقل" : "Min"}
         value={min}
         onChange={(e) => setMin(e.target.value)}
         onBlur={apply}
@@ -246,14 +261,14 @@ function PriceRangeInputs({ pathname, filters }: { pathname: string; filters: Pa
         –
       </span>
       <label className="sr-only" htmlFor="price-max">
-        Maximum price
+        {lang === "fa" ? "حداکثر قیمت" : "Maximum price"}
       </label>
       <input
         id="price-max"
         type="number"
         inputMode="numeric"
         min={0}
-        placeholder="Max"
+        placeholder={lang === "fa" ? "حداکثر" : "Max"}
         value={max}
         onChange={(e) => setMax(e.target.value)}
         onBlur={apply}

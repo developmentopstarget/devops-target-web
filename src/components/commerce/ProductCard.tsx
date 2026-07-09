@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Rating } from "@/components/ui/Rating";
@@ -6,6 +8,7 @@ import { StockBadge } from "@/components/commerce/StockBadge";
 import { PriceTag } from "@/components/commerce/PriceTag";
 import { AddToCartButton } from "@/components/commerce/AddToCartButton";
 import type { Product } from "@/data/products";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface ProductCardProps {
   product: Product;
@@ -15,6 +18,7 @@ export interface ProductCardProps {
 export function ProductCard({ product, href }: ProductCardProps) {
   const outOfStock = product.stock === "out-of-stock";
   const link = href ?? `/products/${product.slug}`;
+  const { t } = useLanguage();
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
@@ -34,7 +38,7 @@ export function ProductCard({ product, href }: ProductCardProps) {
             variant={product.badge === "sale" ? "danger" : "accent"}
             className="absolute top-2.5 start-2.5"
           >
-            {product.badge === "sale" ? "Sale" : "New"}
+            {product.badge === "sale" ? t("sale") : t("new")}
           </Badge>
         )}
         <StockBadge stock={product.stock} className="absolute bottom-2.5 start-2.5" />

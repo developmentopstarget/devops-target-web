@@ -1,8 +1,11 @@
+"use client";
+
 import { ComponentsIcon, TrashIcon } from "@/components/ui/icons";
 import { StockBadge } from "@/components/commerce/StockBadge";
 import { QtyStepper } from "@/components/commerce/QtyStepper";
 import { formatCurrency } from "@/lib/currency";
 import type { CartItem } from "@/components/commerce/CartProvider";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface CartLineItemProps {
   item: CartItem;
@@ -13,6 +16,15 @@ export interface CartLineItemProps {
 export function CartLineItem({ item, onQtyChange, onRemove }: CartLineItemProps) {
   const unavailable = item.stock === "out-of-stock";
   const lineTotal = item.unitPrice * item.quantity;
+  const { t, lang } = useLanguage();
+
+  const lowStockLabel = lang === "fa"
+    ? `موجودی کم — ${item.maxStock} عدد باقی‌مانده`
+    : `Low stock — ${item.maxStock} left`;
+
+  const ariaRemoveLabel = lang === "fa"
+    ? `حذف ${item.name} از سبد خرید`
+    : `Remove ${item.name} from cart`;
 
   return (
     <div className="grid grid-cols-[84px_1fr] gap-3.5 rounded-xl border border-border bg-surface p-3.5 shadow-sm">
@@ -33,7 +45,7 @@ export function CartLineItem({ item, onQtyChange, onRemove }: CartLineItemProps)
         )}
         <div className="text-[14.5px] font-semibold leading-snug text-primary">{item.name}</div>
         <p className="text-xs text-secondary">{item.spec}</p>
-        <StockBadge stock={item.stock} lowStockLabel={`Low stock — ${item.maxStock} left`} className="w-max" />
+        <StockBadge stock={item.stock} lowStockLabel={lowStockLabel} className="w-max" />
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2.5 pt-1.5">
           <QtyStepper
@@ -47,11 +59,11 @@ export function CartLineItem({ item, onQtyChange, onRemove }: CartLineItemProps)
             <button
               type="button"
               onClick={onRemove}
-              aria-label={`Remove ${item.name} from cart`}
+              aria-label={ariaRemoveLabel}
               className="flex items-center gap-1.25 text-xs font-semibold text-tertiary hover:text-danger"
             >
               <TrashIcon className="h-3.5 w-3.5" aria-hidden="true" />
-              Remove
+              {t("remove")}
             </button>
             <span className="font-mono text-[15px] font-bold text-primary">{formatCurrency(lineTotal)}</span>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useContext, useSyncExternalStore, useEffect, type ReactNode } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   fetchCurrentUser,
   loginRequest,
@@ -85,6 +86,14 @@ async function logout() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!state.loading && state.user && (pathname === "/login" || pathname === "/register")) {
+      router.replace("/account");
+    }
+  }, [state.user, state.loading, pathname, router]);
 
   return (
     <AuthContext.Provider value={{ ...state, login, register, logout, refresh }}>{children}</AuthContext.Provider>

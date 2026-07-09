@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { useCart } from "@/components/commerce/CartProvider";
 import { useToast } from "@/components/ui/Toast";
 import type { Product } from "@/data/products";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface AddToCartButtonProps {
   product: Product;
@@ -15,11 +16,12 @@ export interface AddToCartButtonProps {
 export function AddToCartButton({ product, disabled, className }: AddToCartButtonProps) {
   const { addItem } = useCart();
   const { show } = useToast();
+  const { t, lang } = useLanguage();
   const [justAdded, setJustAdded] = useState(false);
 
   function handleClick() {
     addItem(product);
-    show(`Added "${product.name}" to cart`, "success");
+    show(lang === "fa" ? `"${product.name}" به سبد خرید اضافه شد` : `Added "${product.name}" to cart`, "success");
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 1500);
   }
@@ -34,7 +36,11 @@ export function AddToCartButton({ product, disabled, className }: AddToCartButto
       onClick={handleClick}
       className={className}
     >
-      {disabled ? "Notify me" : justAdded ? "Added" : "Add to cart"}
+      {disabled 
+        ? (lang === "fa" ? "مطلعم کن" : "Notify me") 
+        : justAdded 
+          ? (lang === "fa" ? "اضافه شد" : "Added") 
+          : t("addToCart")}
     </Button>
   );
 }

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { hrefWithPatch, type ParsedFilters } from "@/lib/products-filter";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface PaginationProps {
   pathname: string;
@@ -36,9 +39,14 @@ const navDisabledClasses =
   "grid h-9.5 place-items-center rounded-[9px] px-3 font-sans text-[13px] font-semibold text-tertiary opacity-50";
 
 export function Pagination({ pathname, filters, page, pageCount, className }: PaginationProps) {
+  const { t, lang } = useLanguage();
+
   if (pageCount <= 1) return null;
 
   const tokens = getPageTokens(page, pageCount);
+
+  const prevText = lang === "fa" ? "‹ قبلی" : "‹ Prev";
+  const nextText = lang === "fa" ? "بعدی ›" : "Next ›";
 
   return (
     <nav
@@ -47,11 +55,11 @@ export function Pagination({ pathname, filters, page, pageCount, className }: Pa
     >
       {page > 1 ? (
         <Link href={hrefWithPatch(pathname, filters, { page: page - 1, resetPage: false })} className={navLinkClasses}>
-          ‹ Prev
+          {prevText}
         </Link>
       ) : (
         <span aria-disabled="true" className={navDisabledClasses}>
-          ‹ Prev
+          {prevText}
         </span>
       )}
 
@@ -74,11 +82,11 @@ export function Pagination({ pathname, filters, page, pageCount, className }: Pa
 
       {page < pageCount ? (
         <Link href={hrefWithPatch(pathname, filters, { page: page + 1, resetPage: false })} className={navLinkClasses}>
-          Next ›
+          {nextText}
         </Link>
       ) : (
         <span aria-disabled="true" className={navDisabledClasses}>
-          Next ›
+          {nextText}
         </span>
       )}
     </nav>

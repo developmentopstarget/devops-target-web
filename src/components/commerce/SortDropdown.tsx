@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CheckIcon, ChevronDownIcon, SortIcon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/Button";
 import { hrefWithPatch, sortOptions, type ParsedFilters, type SortValue } from "@/lib/products-filter";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface SortDropdownProps {
   pathname: string;
@@ -15,6 +16,7 @@ export interface SortDropdownProps {
 export function SortDropdown({ pathname, filters, className }: SortDropdownProps) {
   const router = useRouter();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const { lang } = useLanguage();
 
   useEffect(() => {
     if (!sheetOpen) return;
@@ -36,13 +38,25 @@ export function SortDropdown({ pathname, filters, className }: SortDropdownProps
     setSheetOpen(false);
   }
 
+  const getSortOptionLabel = (val: SortValue, defaultLabel: string) => {
+    if (lang === "fa") {
+      if (val === "relevance") return "ترتیب: مرتبطترین";
+      if (val === "price_asc") return "قیمت: کم به زیاد";
+      if (val === "price_desc") return "قیمت: زیاد به کم";
+      if (val === "newest") return "جدیدترین";
+      if (val === "rating") return "محبوب‌ترین";
+    }
+    return defaultLabel;
+  };
+
   const currentLabel = sortOptions.find((o) => o.value === filters.sort)?.label ?? "Sort";
+  const localizedCurrentLabel = getSortOptionLabel(filters.sort, currentLabel);
 
   return (
     <div className={className}>
       <div className="hidden items-center gap-2 lg:flex">
         <label htmlFor="sort-select" className="text-[12.5px] text-secondary">
-          Sort
+          {lang === "fa" ? "ترتیب" : "Sort"}
         </label>
         <div className="relative">
           <select
@@ -53,7 +67,7 @@ export function SortDropdown({ pathname, filters, className }: SortDropdownProps
           >
             {sortOptions.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {getSortOptionLabel(option.value, option.label)}
               </option>
             ))}
           </select>
@@ -72,24 +86,26 @@ export function SortDropdown({ pathname, filters, className }: SortDropdownProps
         onClick={() => setSheetOpen(true)}
         className="lg:hidden"
       >
-        Sort: {currentLabel}
+        {lang === "fa" ? localizedCurrentLabel : `Sort: ${currentLabel}`}
       </Button>
 
       {sheetOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            aria-label="Close sort options"
+            aria-label={lang === "fa" ? "بستن گزینه‌های مرتب‌سازی" : "Close sort options"}
             className="absolute inset-0 bg-slate-950/50"
             onClick={() => setSheetOpen(false)}
           />
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Sort by"
+            aria-label={lang === "fa" ? "مرتب‌سازی بر اساس" : "Sort by"}
             className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-surface p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lg"
           >
-            <h2 className="mb-3 text-base font-bold text-primary">Sort by</h2>
+            <h2 className="mb-3 text-base font-bold text-primary">
+              {lang === "fa" ? "مرتب‌سازی بر اساس" : "Sort by"}
+            </h2>
             <div className="flex flex-col">
               {sortOptions.map((option) => (
                 <button
@@ -98,7 +114,7 @@ export function SortDropdown({ pathname, filters, className }: SortDropdownProps
                   onClick={() => applySort(option.value)}
                   className="flex items-center justify-between rounded-lg px-3 py-3 text-start text-[14px] font-medium text-primary hover:bg-surface-2"
                 >
-                  {option.label}
+                  {getSortOptionLabel(option.value, option.label)}
                   {filters.sort === option.value && <CheckIcon className="h-4 w-4 text-accent" aria-hidden="true" />}
                 </button>
               ))}

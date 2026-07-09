@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
 import { CloseIcon, MenuIcon } from "@/components/ui/icons";
 import { primaryNav } from "@/config/nav";
+import { useLanguage } from "@/lib/useLanguage";
 
 export function MobileDrawer() {
   const [open, setOpen] = useState(false);
+  const { isRtl } = useLanguage();
+
 
   useEffect(() => {
     if (!open) return;
@@ -59,9 +62,9 @@ export function MobileDrawer() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-[9px] px-3 py-3 text-[14.5px] font-semibold text-primary hover:bg-surface-2"
+                  className="rounded-[9px] px-3 py-3 text-[16px] font-semibold text-primary hover:bg-surface-2"
                 >
-                  {link.label}
+                  {isRtl ? link.labelFa || link.label : link.label}
                 </Link>
               ))}
             </nav>
@@ -73,7 +76,7 @@ export function MobileDrawer() {
               className="mt-2"
               onClick={() => setOpen(false)}
             >
-              Sign in
+              {isRtl ? "ورود به حساب" : "Sign in"}
             </Button>
           </div>
         </div>

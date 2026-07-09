@@ -1,0 +1,336 @@
+import { useState, useEffect } from "react";
+
+const translations = {
+  en: {
+    // Header/Search
+    searchPlaceholder: "Search laptops, GPUs, monitors…",
+    notifications: "Notifications",
+    wishlist: "Wishlist",
+    signOut: "Sign Out",
+    // Profile Settings
+    profileSettings: "Profile Settings",
+    managePersonalDetails: "Manage your personal details.",
+    personalDetails: "Personal Details",
+    firstName: "First Name",
+    lastName: "Last Name",
+    username: "Username",
+    emailAddress: "Email Address",
+    saveChanges: "Save Changes",
+    // Navigation Tabs / Breadcrumbs
+    home: "Home",
+    shop: "Shop",
+    cart: "Cart",
+    profile: "Profile",
+    profileAndSettings: "Profile & Settings",
+    orderHistory: "Order History",
+    myAddresses: "My Addresses",
+    security2FA: "Security & 2FA",
+    account: "Account",
+    loadingSession: "Loading secure account session...",
+    // Placeholders
+    firstNamePlaceholder: "Enter your first name",
+    lastNamePlaceholder: "Enter your last name",
+    usernamePlaceholder: "Enter username",
+    emailPlaceholder: "Enter email address",
+    // Toast messages
+    correctErrors: "Please correct the errors in the form.",
+    updateSuccess: "Profile updated successfully!",
+    networkError: "Network error. Please try again.",
+    
+    // Core E-commerce Expansion
+    quantity: "Quantity",
+    inStock: "In stock — ready for same-day pickup",
+    addToCart: "Add to cart",
+    buyNow: "Buy now",
+    specs: "Specs",
+    overview: "Overview",
+    reviews: "Reviews",
+    pickupWarrantyInfo: "Same-day pickup in Springfield, or free local delivery over $99",
+    localWarranty: "1-year local warranty — serviced in-store, no shipping away",
+    returnPolicy: "14-day returns on unopened items",
+    mightLike: "You might also like",
+    writeReview: "Write a review",
+    beFirstReview: "Be the first to review",
+    continueShopping: "Continue shopping",
+    yourCart: "Your cart",
+    remove: "Remove",
+    shippingReturns: "Shipping & returns",
+
+    // Catalog, Badges & Pagination
+    sale: "SALE",
+    new: "NEW",
+    filters: "Filters",
+    sortRelevance: "Sort: Relevance",
+    allProducts: "All products",
+    products: "products",
+    inSpringfieldOnline: "in Springfield & online",
+    next: "Next",
+    prev: "Prev",
+    productsMetrics: "{count} products · in Springfield & online",
+
+    // Home Page Hero & CTA
+    buildDreamPC: "Build your dream PC with local experts",
+    buildDreamPCDesc: "Tell us your budget and use case — gaming, editing, or office. We'll spec it, build it, stress-test it, and have it ready for pickup.",
+    startYourBuild: "Start your build",
+    shopLaptopsPCs: "Shop laptops & PCs",
+    buildCustomPC: "Build a custom PC",
+    dealOfTheWeek: "Deal of the week",
+    handpickedStoreTeam: "Handpicked by our Springfield store team.",
+    sameDayPickup: "Same-day in-store pickup",
+    freeLocalDelivery: "Free local delivery over $99",
+    localWarrantySupport: "1-year local warranty & support",
+    heroTitle: "Laptops, custom PCs & components — built right, in stock, near you.",
+    heroDescription: "Shop trusted brands with real prices, or let our in-store techs build and service your machine. Same-day pickup and free local delivery.",
+    demoUnit: "In-store demo unit",
+
+    // Footer
+    footerDescription: "Springfield's trusted computer store — laptops, custom PCs, components, and expert local service.",
+    footerShopTitle: "SHOP",
+    footerSupportTitle: "SUPPORT",
+    footerCompanyTitle: "COMPANY",
+    contactUs: "Contact us",
+    laptops: "Laptops",
+    desktopsAndPCs: "Desktops & PCs",
+    company: "Company",
+    components: "Components",
+    monitors: "Monitors",
+    deals: "Deals",
+    buildService: "Build service",
+    warranty: "Warranty",
+    trackOrder: "Track order",
+    faq: "FAQ",
+    about: "About",
+    visitStore: "Visit store",
+    careers: "Careers",
+    blog: "Blog",
+
+    // Notification center
+    orderPaidConfirmed: "Order Paid & Confirmed",
+    securityAlertNewDevice: "Security Alert: Login from New Device",
+    specialOfferPCParts: "Special Offer: 10% Off PC Parts",
+    orderPaidConfirmedBody: "Your order DT-893012 has been successfully paid and is currently processing in our warehouse.",
+    securityAlertNewDeviceBody: "A new login was detected from Springfield IP 192.168.1.100. If this wasn't you, change your password immediately.",
+    specialOfferPCPartsBody: "Use promo code BUILD10 at checkout to save 10% on all components this week.",
+    hoursAgo: "hours ago",
+    dayAgo: "day ago",
+    daysAgo: "days ago",
+    freeLocalDeliveryLabel: "Free local delivery",
+    notificationsCenter: "Notifications Center",
+    notificationsCenterDesc: "Stay updated with your orders, security alerts, and exclusive promos.",
+    inboxClean: "Inbox is clean",
+    inboxCleanDesc: "You don't have any notifications at the moment.",
+    markAllReadSuccess: "All notifications marked as read.",
+    notificationsCleared: "Notifications cleared.",
+    markAllRead: "Mark all as read",
+    clearAll: "Clear all",
+    closeNotifications: "Close notifications",
+    noNotifications: "No notifications",
+
+    // Homepage sections additions
+    shopByCategory: "Shop by category",
+    workPlayBuilding: "Everything for work, play, and building.",
+    allCategories: "All categories →",
+    sameDayPickupTitle: "Same-day pickup",
+    sameDayPickupDesc: "Order online and collect from our store within hours.",
+    expertBuildTitle: "Expert build & repair",
+    expertBuildDesc: "In-house technicians assemble, upgrade, and service every machine.",
+    localWarrantyTitle: "Local warranty",
+    localWarrantyDesc: "1-year warranty handled in-store — no shipping your gear away.",
+    priceMatchTitle: "Price-match promise",
+    priceMatchDesc: "Find it cheaper locally? We'll match the price on the spot.",
+    visitUsIn: "Visit us in {city}",
+    talkRealTech: "Talk to a real technician, test devices in person, or pick up your order.",
+    address: "Address",
+    phone: "Phone",
+    hours: "Hours",
+    getDirections: "Get directions",
+    storeMap: "Store map — {city}",
+    getLocalDealsFirst: "Get local deals first",
+    newsletterDesc: "New arrivals, in-store events, and local-only discounts. No spam.",
+    subscribe: "Subscribe",
+    subscribeSuccess: "You're subscribed — welcome aboard!",
+    somethingWentWrong: "Something went wrong. Please try again.",
+  },
+  fa: {
+    // Header/Search
+    searchPlaceholder: "جستجوی لپ‌تاپ، کارت گرافیک، مانیتور...",
+    notifications: "اعلان‌ها",
+    wishlist: "لیست علاقه‌مندی‌ها",
+    signOut: "خروج",
+    // Profile Settings
+    profileSettings: "تنظیمات پروفایل",
+    managePersonalDetails: "اطلاعات شخصی خود را مدیریت کنید.",
+    personalDetails: "اطلاعات شخصی",
+    firstName: "نام",
+    lastName: "نام خانوادگی",
+    username: "نام کاربری",
+    emailAddress: "آدرس ایمیل",
+    saveChanges: "ذخیره تغییرات",
+    // Navigation Tabs / Breadcrumbs
+    home: "خانه",
+    shop: "فروشگاه",
+    cart: "سبد خرید",
+    profile: "پروفایل",
+    profileAndSettings: "پروفایل و تنظیمات",
+    orderHistory: "تاریخچه سفارشات",
+    myAddresses: "آدرس‌های من",
+    security2FA: "امنیت و تایید دو مرحله‌ای",
+    account: "حساب کاربری",
+    loadingSession: "در حال بارگذاری نشست امن حساب کاربری...",
+    // Placeholders
+    firstNamePlaceholder: "نام خود را وارد کنید",
+    lastNamePlaceholder: "نام خانوادگی خود را وارد کنید",
+    usernamePlaceholder: "نام کاربری را وارد کنید",
+    emailPlaceholder: "آدرس ایمیل را وارد کنید",
+    // Toast messages
+    correctErrors: "لطفاً خطاهای فرم را برطرف کنید.",
+    updateSuccess: "پروفایل با موفقیت بروزرسانی شد!",
+    networkError: "خطای شبکه. لطفاً دوباره تلاش کنید.",
+    
+    // Core E-commerce Expansion
+    quantity: "تعداد",
+    inStock: "موجود در انبار — آماده برای تحویل در همان روز",
+    addToCart: "افزودن به سبد خرید",
+    buyNow: "خرید فوری",
+    specs: "مشخصات",
+    overview: "توضیحات",
+    reviews: "نظرات",
+    pickupWarrantyInfo: "تحویل حضوری در همان روز یا ارسال رایگان محلی برای خریدهای بالای ۹۹ دلار",
+    localWarranty: "گارانتی محلی یک ساله — خدمات در فروشگاه، بدون نیاز به ارسال پستی",
+    returnPolicy: "مرجوعی ۱۴ روزه برای کالاهای باز نشده",
+    mightLike: "محصولات پیشنهادی",
+    writeReview: "ثبت نظر جدید",
+    beFirstReview: "اولین نفری باشید که نظر ثبت میکند",
+    continueShopping: "ادامه خرید",
+    yourCart: "سبد خرید شما",
+    remove: "حذف",
+    shippingReturns: "ارسال و مرجوعی",
+
+    // Catalog, Badges & Pagination
+    sale: "حراج",
+    new: "جدید",
+    filters: "فیلترها",
+    sortRelevance: "ترتیب: مرتبطترین",
+    allProducts: "همه محصولات",
+    products: "محصول",
+    inSpringfieldOnline: "حضوری و آنلاین",
+    next: "بعدی",
+    prev: "قبلی",
+    productsMetrics: "{count} محصول . به صورت حضوری و آنلاین",
+
+    // Home Page Hero & CTA
+    buildDreamPC: "کیس رویایی خود را با متخصصین محلی ما بسازید",
+    buildDreamPCDesc: "بودجه و کاربرد مورد نظر خود (بازی، ادیت یا اداری) را به ما بگویید. ما آن را طراحی، مونتاژ و تست پایداری میکنیم تا آماده تحویل شود.",
+    startYourBuild: "شروع طراحی کیس",
+    shopLaptopsPCs: "خرید لپتاپ و کامپیوتر",
+    buildCustomPC: "طراحی کیس سفارشی",
+    dealOfTheWeek: "پیشنهاد ویژه هفته",
+    handpickedStoreTeam: "انتخاب شده توسط تیم فروشگاهی ما.",
+    sameDayPickup: "تحویل حضوری در همان روز",
+    freeLocalDelivery: "ارسال رایگان محلی برای خریدهای بالای ۹۹ دلار",
+    localWarrantySupport: "یک سال گارانتی محلی و پشتیبانی",
+    heroTitle: "لپتاپ، کیس‌های سفارشی و قطعات کامپیوتر — اسمبل حرفه‌ای، موجود در انبار، نزدیک شما.",
+    heroDescription: "خرید از برندهای معتبر با قیمت واقعی، یا اسمبل و سرویس سیستم شما توسط تکنسین‌های ما. تحویل حضوری در همان روز و ارسال رایگان محلی.",
+    demoUnit: "نسخه دمو فروشگاهی",
+
+    // Footer
+    footerDescription: "فروشگاه کامپیوتر قابل اعتماد شما — لپتاپ، کیسهای سفارشی، قطعات و خدمات تخصصی محلی.",
+    footerShopTitle: "فروشگاه",
+    footerSupportTitle: "پشتیبانی",
+    footerCompanyTitle: "شرکت",
+    contactUs: "تماس با ما",
+    laptops: "لپتاپها",
+    desktopsAndPCs: "کیس و کامپیوتر",
+    company: "شرکت",
+    components: "قطعات",
+    monitors: "مانیتورها",
+    deals: "تخفیف‌ها",
+    buildService: "خدمات اسمبل",
+    warranty: "گارانتی",
+    trackOrder: "پیگیری سفارش",
+    faq: "سوالات متداول",
+    about: "درباره ما",
+    visitStore: "بازدید از فروشگاه",
+    careers: "فرصت‌های شغلی",
+    blog: "وبلاگ",
+
+    // Notification center
+    orderPaidConfirmed: "سفارش پرداخت و تایید شد",
+    securityAlertNewDevice: "هشدار امنیتی: ورود از دستگاه جدید",
+    specialOfferPCParts: "پیشنهاد ویژه: ۱۰٪ تخفیف قطعات کامپیوتر",
+    orderPaidConfirmedBody: "سفارش DT-893012 شما با موفقیت پرداخت شد و در حال حاضر در انبار ما در حال پردازش است.",
+    securityAlertNewDeviceBody: "یک ورود جدید از آی‌پی Springfield 192.168.1.100 شناسایی شد. اگر این شما نیستید، بلافاصله رمز عبور خود را تغییر دهید.",
+    specialOfferPCPartsBody: "از کد تخفیف BUILD10 در هنگام پرداخت استفاده کنید تا این هفته ۱۰٪ در خرید تمامی قطعات صرفه‌جویی کنید.",
+    hoursAgo: "ساعت پیش",
+    dayAgo: "روز پیش",
+    daysAgo: "روز پیش",
+    freeLocalDeliveryLabel: "ارسال رایگان محلی",
+    notificationsCenter: "مرکز اعلان‌ها",
+    notificationsCenterDesc: "از سفارشات، هشدارهای امنیتی و تخفیف‌های انحصاری خود مطلع شوید.",
+    inboxClean: "صندوق ورودی خالی است",
+    inboxCleanDesc: "در حال حاضر هیچ اعلانی ندارید.",
+    markAllReadSuccess: "تمام اعلان‌ها به عنوان خوانده شده علامت‌گذاری شدند.",
+    notificationsCleared: "اعلان‌ها پاک شدند.",
+    markAllRead: "خوانده شده همه",
+    clearAll: "پاک کردن همه",
+    closeNotifications: "بستن اعلان‌ها",
+    noNotifications: "هیچ اعلانی وجود ندارد",
+
+    // Homepage sections additions
+    shopByCategory: "خرید بر اساس دسته‌بندی",
+    workPlayBuilding: "همه چیز برای کار، بازی و اسمبل.",
+    allCategories: "همه دسته‌بندی‌ها ←",
+    sameDayPickupTitle: "تحویل حضوری در همان روز",
+    sameDayPickupDesc: "سفارش آنلاین و تحویل از فروشگاه در چند ساعت.",
+    expertBuildTitle: "اسمبل و تعمیرات تخصصی",
+    expertBuildDesc: "تکنسین‌های ماهر قطعات را اسمبل، ارتقا و سرویس می‌کنند.",
+    localWarrantyTitle: "گارانتی محلی",
+    localWarrantyDesc: "گارانتی یک‌ساله در فروشگاه — بدون نیاز به ارسال پستی.",
+    priceMatchTitle: "تضمین بهترین قیمت",
+    priceMatchDesc: "قیمت پایین‌تری در منطقه پیدا کردید؟ ما همان قیمت را ارائه می‌دهیم.",
+    visitUsIn: "بازدید حضوری در {city}",
+    talkRealTech: "با تکنسین گفتگو کنید، دستگاه‌ها را تست کنید یا سفارش خود را تحویل بگیرید.",
+    address: "آدرس",
+    phone: "تلفن",
+    hours: "ساعت کاری",
+    getDirections: "مسیریابی",
+    storeMap: "نقشه فروشگاه — {city}",
+    getLocalDealsFirst: "دریافت تخفیف‌های محلی زودتر از همه",
+    newsletterDesc: "جدیدترین محصولات، رویدادها و تخفیف‌های ویژه محلی. بدون هرزنامه.",
+    subscribe: "عضویت",
+    subscribeSuccess: "عضویت شما با موفقیت انجام شد — خوش آمدید!",
+    somethingWentWrong: "خطایی رخ داده است. لطفاً دوباره تلاش کنید.",
+  }
+} as const;
+
+export type TranslationKey = keyof typeof translations.en;
+
+export function useLanguage() {
+  const [lang, setLang] = useState<"en" | "fa">("en");
+  const [dir, setDir] = useState("ltr");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const currentLang = (document.documentElement.lang || "en") as "en" | "fa";
+      setLang(currentLang === "fa" ? "fa" : "en");
+      setDir(document.documentElement.dir || "ltr");
+
+      const handleLangChange = () => {
+        const nextLang = (document.documentElement.lang || "en") as "en" | "fa";
+        setLang(nextLang === "fa" ? "fa" : "en");
+        setDir(document.documentElement.dir || "ltr");
+      };
+
+      window.addEventListener("languagechange", handleLangChange);
+      return () => {
+        window.removeEventListener("languagechange", handleLangChange);
+      };
+    }
+  }, []);
+
+  const t = (key: TranslationKey): string => {
+    return translations[lang][key] || translations.en[key] || "";
+  };
+
+  return { lang, dir, isRtl: dir === "rtl", t };
+}

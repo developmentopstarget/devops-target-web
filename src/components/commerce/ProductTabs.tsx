@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface ProductTab {
   id: string;
@@ -17,6 +18,7 @@ export function ProductTabs({ tabs, className }: ProductTabsProps) {
   const [active, setActive] = useState(0);
   const idBase = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const { t } = useLanguage();
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
@@ -31,6 +33,18 @@ export function ProductTabs({ tabs, className }: ProductTabsProps) {
     setActive(next);
     tabRefs.current[next]?.focus();
   }
+
+  const getTabLabel = (id: string, defaultLabel: string) => {
+    if (id === "specs") return t("specs");
+    if (id === "overview") return t("overview");
+    if (id === "reviews") {
+      const match = defaultLabel.match(/\d+/);
+      const count = match ? match[0] : "";
+      return count ? `${t("reviews")} (${count})` : t("reviews");
+    }
+    if (id === "shipping") return t("shippingReturns");
+    return defaultLabel;
+  };
 
   return (
     <div className={["mt-10 border-t border-border", className ?? ""].filter(Boolean).join(" ")}>
@@ -58,7 +72,7 @@ export function ProductTabs({ tabs, className }: ProductTabsProps) {
               active === i ? "border-accent text-accent" : "border-transparent text-secondary hover:text-primary",
             ].join(" ")}
           >
-            {tab.label}
+            {getTabLabel(tab.id, tab.label)}
           </button>
         ))}
       </div>

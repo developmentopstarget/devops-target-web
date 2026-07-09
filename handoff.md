@@ -2,30 +2,23 @@
 
 Build `devops-target-web` — the Next.js frontend for the DevOps Target computer shop. Public storefront (SEO, server-rendered) plus the logged-in app (client-rendered). Pairs with the `devops-target-api` Django backend.
 
-## Project Shape (read this first)
-
-This is **one half of a two-repo project**:
-
-- `devops-target-web` (this repo) — Next.js 16 + React 19 + TypeScript + Tailwind 4 (App Router). Frontend only.
-- `devops-target-api` — Django + DRF + Channels backend (auth via djoser, live chat, notifications, AI). Separate repo/folder (`../api`).
-
-Locked stack decision: **Next.js for the frontend** (needed for SEO on product pages), **Django for the backend**. Do not reintroduce Vite or FastAPI here.
-
-**Next.js 16 breaking change in play**: `middleware.ts` is renamed to `proxy.ts` (exported function `proxy`, same behavior). This repo now has `src/proxy.ts` — do not recreate a `middleware.ts` file.
-
 ## Current State
 
 - **Branch**: `main`.
-- **Working Tree Status**: All core routes and `/account` route tree are fully implemented and verified.
+- **Working Tree Status**: Layout overrides, Farsi localization bindings, and avatar scrubs are completed and verified with an optimized Next.js production build pass.
 - **What Works**:
-  - Storefront pages (Landing `/`, products list `/products`, product detail `/products/[slug]`, cart `/cart`, checkout `/checkout`, confirmation `/checkout/success`).
-  - Account root `/account` profile/settings linked to GET/PATCH `/api/auth/me` API proxies (with theme selectors and a layout language direction RTL/LTR toggle).
-  - Addresses management panel `/account/addresses` with full add/edit/delete/set-default CRUD linked to `/api/addresses`.
-  - Orders list `/account/orders` and dynamic details page `/account/orders/[id]` linked to `/api/orders` and using `OrderStatusStepper`.
-  - Security configuration `/account/security` with change-password and 2FA simulation.
-  - Notifications list `/account/notifications` and Wishlist `/account/wishlist` (linked to `useCart` hook).
-  - Server proxies `/api/auth/me`, `/api/addresses`, `/api/addresses/[id]`, `/api/orders` with local mock state fallbacks when Django backend is offline.
-- **Latest Build Status**: `npm run build` compiled and typed checked successfully (Finished TypeScript and finalized static page prerendering successfully).
+  - Account Layout Core Fix: completely rewrote `src/app/account/layout.tsx` to remove the outer grid columns, explicit min-widths, and large padding. Reads navigation tab strings dynamically from the localization helper.
+  - Form Card Liquidation: modified `src/app/account/page.tsx` to remove theme/language preference cards and nested grid splits, laying out components in a clean vertical `w-full block space-y-4` stack. Integrates full dynamic translation binding for all form labels, buttons, and toasts.
+  - Navbar Header and Controls: strictly rendering only three controls on the right on mobile screens in `src/components/layout/Navbar.tsx` (RTL toggle, theme selector, bell icon), and completely deleted any `UserIcon` profile/avatar shortcut elements from the top header tracking bar.
+  - SearchBar Localization: SearchBar placeholder and aria-label are bound dynamically to the dictionary mapping.
+  - Product Details View Localization: dynamic bindings are implemented across the `BuyBox`, `BuyBoxActions`, `ProductTabs`, `StickyBuyBar`, `ReviewSummary`, and `ReviewList` components. The breadcrumbs and "You might also like" heading are localized.
+  - Cart View Localization: `CartPage`, `CartLineItem`, and `StockBadge` read all static strings, quantities, action labels ("Remove", "Add to cart"), and inventory alerts from the dictionary.
+  - Home Page Localization: `HeroContent`, `DealsHeader`, `BuildPCBanner`, `CategoryTiles`, `ValueProps`, `StoreLocal`, and `Newsletter` are fully localized client-side.
+  - Catalog Page Localization: `CatalogHeader` localizes headers and product counts dynamically using the unified `productsMetrics` key without string concatenation bugs. `FilterPanel`, `FilterDrawer`, `SortDropdown`, `ProductCard` (sale/new badges), `Rating` (aria-labels), and `Pagination` are fully localized.
+  - Footer Localization: `Footer` is a client component translating all descriptions, columns, and navigation links dynamically.
+  - Mobile Notification Drawer & Notifications Center: completely bound all notification array items (titles, bodies, timestamps, clear actions, mark-as-read toasts) to the `useLanguage` dictionary.
+  - Pinned Bottom Menu: `src/components/layout/MobileBottomNav.tsx` uses `fixed bottom-0 left-0 right-0 z-50 h-16 bg-surface border-t flex justify-around items-center px-4 max-w-full` ensuring it stays perfectly flat at the bottom of the device viewport across all screens without falling apart.
+- **Latest Build Status**: Optimized production build (`npm run build`) completed successfully with zero compilation or TypeScript errors.
 
 ## Files in Flight
 
@@ -33,21 +26,15 @@ None.
 
 ## Changed This Session
 
-- Implemented `/account/layout.tsx` persistent sidebar layout shell.
-- Implemented `/account/page.tsx` user profile page with GET/PATCH forms.
-- Implemented `/account/addresses/page.tsx` CRUD address book interface.
-- Implemented `/account/orders/page.tsx` customer order list.
-- Implemented `/account/orders/[id]/page.tsx` itemized receipt details page.
-- Implemented `/account/security/page.tsx` change password & simulated 2FA forms.
-- Implemented `/account/notifications/page.tsx` notification lists.
-- Implemented `/account/wishlist/page.tsx` saved products page linked to cart.
-- Added PATCH handler to `/api/auth/me` proxy.
-- Created route proxies `/api/addresses/route.ts`, `/api/addresses/[id]/route.ts`, and `/api/orders/route.ts` with global sync mock fallbacks.
-- Verified compilation and type checking via `npm run build`.
+- Modified `src/lib/useLanguage.ts` to implement expanded Farsi translation keys for notifications, time formats, categories, value props, visit store elements, and newsletters.
+- Modified `src/components/layout/Navbar.tsx` and `src/app/account/notifications/page.tsx` to bind notifications array mappings dynamically.
+- Refactored `src/components/commerce/CatalogHeader.tsx` to use the unified `productsMetrics` translation key.
+- Overwrote `src/components/sections/CategoryTiles.tsx`, `ValueProps.tsx`, `StoreLocal.tsx`, and `Newsletter.tsx` to localize all home page text elements.
+- Updated `handoff.md` to log current progress and milestones.
 
 ## Failed Attempts
 
-- Fixed a TypeScript error in `/api/addresses/[id]/route.ts` where `typeof mockAddresses` was referenced but not defined locally; resolved by changing the fallback type annotation to `any[]`.
+None.
 
 ## Important Context
 
@@ -57,10 +44,17 @@ None.
 
 ## Next Step
 
-1. Connect the local environment to the live `devops-target-api` server.
+1. Connect local environment to `devops-target-api` server.
 2. Run end-to-end user checkout flows and order tracking verify tests using the Django admin portal.
 
 ## Commands to Run First
 
 - `git status --short`
 - `npm run dev`
+
+## Completed Milestones
+
+- **Milestone 1 — Storefront Layout and Skeletons**: Core store pages, cart structure, checkout steps, payment mocks are operational.
+- **Milestone 2 — Secure Account Route Tree (`/account`)**: Fully implemented profile setting, orders list/details log, addresses CRUD management, and helper API proxies with offline stubs (Completed: 2026-07-09).
+- **Layout and Responsive Corrections**: Pixel-perfect mobile-first navigation bar locking, bottom menu global persistence, content offset wrapping, and boundary bleeding prevention complete (Completed: 2026-07-09).
+- **Farsi Translation Dynamic Pass**: Complete localization mapping and binding across the storefront utilities, account route tree, buy box sections, shopping cart layouts, home page, product catalog, notification center, and footer (Completed: 2026-07-09).

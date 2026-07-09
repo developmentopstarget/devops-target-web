@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/layout/Container";
@@ -13,6 +12,7 @@ import { ProductTabs } from "@/components/commerce/ProductTabs";
 import { ReviewSummary } from "@/components/commerce/ReviewSummary";
 import { ReviewList } from "@/components/commerce/ReviewList";
 import { StickyBuyBar } from "@/components/commerce/StickyBuyBar";
+import { RelatedProductsHeading } from "@/components/commerce/RelatedProductsHeading";
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { ProductJsonLd } from "@/components/seo/ProductJsonLd";
 import { categories } from "@/data/categories";
@@ -137,7 +137,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <>
       <BreadcrumbJsonLd items={breadcrumbItems} />
       <ProductJsonLd product={product} detail={detail} />
-      <AnnouncementBar />
       <Navbar />
       <main className="flex-1 pb-[76px] lg:pb-0">
         <Container>
@@ -151,7 +150,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <ProductTabs tabs={tabs} />
 
           <section className="pb-14 pt-5">
-            <h2 className="mb-4.5 text-xl font-bold tracking-tight text-primary">You might also like</h2>
+            <RelatedProductsHeading />
             <ProductGrid products={related} gridColsClassName="grid grid-cols-2 gap-3.5 sm:grid-cols-4" />
           </section>
         </Container>

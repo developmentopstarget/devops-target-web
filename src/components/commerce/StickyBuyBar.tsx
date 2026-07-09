@@ -6,6 +6,7 @@ import { PriceTag } from "@/components/commerce/PriceTag";
 import { useCart } from "@/components/commerce/CartProvider";
 import { useToast } from "@/components/ui/Toast";
 import type { Product } from "@/data/products";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface StickyBuyBarProps {
   product: Product;
@@ -14,13 +15,14 @@ export interface StickyBuyBarProps {
 export function StickyBuyBar({ product }: StickyBuyBarProps) {
   const { addItem } = useCart();
   const { show } = useToast();
+  const { t, lang } = useLanguage();
   const [adding, setAdding] = useState(false);
   const outOfStock = product.stock === "out-of-stock";
 
   function handleAddToCart() {
     setAdding(true);
     addItem(product);
-    show(`Added "${product.name}" to cart`, "success");
+    show(lang === "fa" ? `"${product.name}" به سبد خرید اضافه شد` : `Added "${product.name}" to cart`, "success");
     window.setTimeout(() => setAdding(false), 600);
   }
 
@@ -35,7 +37,7 @@ export function StickyBuyBar({ product }: StickyBuyBarProps) {
         onClick={handleAddToCart}
         className="flex-1"
       >
-        {outOfStock ? "Notify me" : "Add to cart"}
+        {outOfStock ? (lang === "fa" ? "مطلعم کن" : "Notify me") : t("addToCart")}
       </Button>
     </div>
   );

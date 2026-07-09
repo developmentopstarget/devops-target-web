@@ -73,7 +73,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-full overflow-x-hidden box-border space-y-6 px-4">
       {/* Breadcrumbs */}
       <Breadcrumbs
         items={[
@@ -131,7 +131,7 @@ export default function OrdersPage() {
             return (
               <Card key={order.orderNumber} className="overflow-hidden border border-border">
                 {/* Order Summary Header */}
-                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface-2 px-5 py-3.5">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface-2 px-4 sm:px-5 py-3.5">
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                     <div>
                       <p className="text-[11px] font-semibold text-secondary uppercase tracking-wider">
@@ -164,7 +164,7 @@ export default function OrdersPage() {
                 </div>
 
                 {/* Order Items Preview */}
-                <div className="p-5">
+                <div className="p-4 sm:p-5">
                   <div className="flex flex-col gap-4">
                     {order.items.map((item) => (
                       <div key={item.productId} className="flex gap-4 items-center">

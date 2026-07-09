@@ -4,11 +4,13 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Container } from "@/components/layout/Container";
+import { useLanguage } from "@/lib/useLanguage";
 
 type NewsletterStatus = "idle" | "submitting" | "success" | "error";
 
 export function Newsletter() {
   const [status, setStatus] = useState<NewsletterStatus>("idle");
+  const { t, lang } = useLanguage();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,9 +34,11 @@ export function Newsletter() {
     <section className="py-10 lg:py-14">
       <Container>
         <div className="rounded-2xl border border-border bg-surface-2 px-5 py-7 text-center">
-          <h2 className="text-xl font-extrabold tracking-tight text-primary">Get local deals first</h2>
+          <h2 className="text-xl font-extrabold tracking-tight text-primary">
+            {t("getLocalDealsFirst")}
+          </h2>
           <p className="mx-auto mt-1.5 max-w-[44ch] text-[13.5px] text-secondary">
-            New arrivals, in-store events, and local-only discounts. No spam.
+            {t("newsletterDesc")}
           </p>
           <form
             onSubmit={handleSubmit}
@@ -44,20 +48,20 @@ export function Newsletter() {
             <Input
               type="email"
               name="email"
-              placeholder="you@email.com"
-              aria-label="Email"
+              placeholder={lang === "fa" ? "ایمیل شما" : "you@email.com"}
+              aria-label={lang === "fa" ? "ایمیل" : "Email"}
               required
               disabled={status === "submitting"}
               wrapperClassName="min-w-50 flex-1"
               className="h-11.5"
             />
             <Button type="submit" size="lg" loading={status === "submitting"} disabled={status === "submitting"}>
-              Subscribe
+              {t("subscribe")}
             </Button>
           </form>
           <div role="status" aria-live="polite" className="mt-3 min-h-5 text-sm font-medium">
-            {status === "success" && <span className="text-success">You&rsquo;re subscribed — welcome aboard!</span>}
-            {status === "error" && <span className="text-danger">Something went wrong. Please try again.</span>}
+            {status === "success" && <span className="text-success">{t("subscribeSuccess")}</span>}
+            {status === "error" && <span className="text-danger">{t("somethingWentWrong")}</span>}
           </div>
         </div>
       </Container>

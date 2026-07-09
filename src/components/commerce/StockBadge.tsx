@@ -1,4 +1,7 @@
+"use client";
+
 import type { StockStatus } from "@/data/products";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface StockBadgeProps {
   stock: StockStatus;
@@ -6,15 +9,23 @@ export interface StockBadgeProps {
   className?: string;
 }
 
-const stockConfig: Record<StockStatus, { label: string; dot: string; bg: string; text: string }> = {
-  "in-stock": { label: "In stock", dot: "bg-success", bg: "bg-success/15", text: "text-success" },
-  "low-stock": { label: "Low stock", dot: "bg-warning", bg: "bg-warning/15", text: "text-warning" },
-  "out-of-stock": { label: "Out of stock", dot: "bg-danger", bg: "bg-danger/15", text: "text-danger" },
-};
-
 export function StockBadge({ stock, lowStockLabel, className }: StockBadgeProps) {
-  const config = stockConfig[stock];
-  const label = stock === "low-stock" && lowStockLabel ? lowStockLabel : config.label;
+  const { lang } = useLanguage();
+
+  const stockTranslations: Record<StockStatus, string> = {
+    "in-stock": lang === "fa" ? "موجود" : "In stock",
+    "low-stock": lang === "fa" ? "موجودی کم" : "Low stock",
+    "out-of-stock": lang === "fa" ? "ناموجود" : "Out of stock",
+  };
+
+  const config = {
+    "in-stock": { dot: "bg-success", bg: "bg-success/15", text: "text-success" },
+    "low-stock": { dot: "bg-warning", bg: "bg-warning/15", text: "text-warning" },
+    "out-of-stock": { dot: "bg-danger", bg: "bg-danger/15", text: "text-danger" },
+  }[stock];
+
+  const defaultLabel = stockTranslations[stock];
+  const label = stock === "low-stock" && lowStockLabel ? lowStockLabel : defaultLabel;
 
   return (
     <span

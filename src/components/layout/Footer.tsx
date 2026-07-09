@@ -1,58 +1,63 @@
+"use client";
+
 import Link from "next/link";
 import { LogoMarkIcon } from "@/components/ui/icons";
 import { storeConfig } from "@/config/store";
 import { Container } from "@/components/layout/Container";
+import { useLanguage } from "@/lib/useLanguage";
 
 interface FooterLink {
-  label: string;
+  labelKey: "laptops" | "desktopsAndPCs" | "components" | "monitors" | "deals" | "contactUs" | "buildService" | "warranty" | "trackOrder" | "faq" | "about" | "visitStore" | "careers" | "blog";
   href?: string;
 }
 
-const shopLinks: FooterLink[] = [
-  { label: "Laptops", href: "/categories/laptops" },
-  { label: "Desktops & PCs", href: "/categories/desktops-pcs" },
-  { label: "Components", href: "/categories/components" },
-  { label: "Monitors", href: "/categories/monitors" },
-  { label: "Deals", href: "/deals" },
-];
-
-const supportLinks: FooterLink[] = [
-  { label: "Contact us", href: "/contact" },
-  { label: "Build service", href: "#build-a-pc" },
-  { label: "Warranty" },
-  { label: "Track order" },
-  { label: "FAQ", href: "/faq" },
-];
-
-const companyLinks: FooterLink[] = [
-  { label: "About", href: "/about" },
-  { label: "Visit store", href: "#store-local" },
-  { label: "Careers" },
-  { label: "Blog", href: "/blog" },
-];
-
-function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
-  return (
-    <div>
-      <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-tertiary">{title}</h4>
-      <ul className="flex flex-col">
-        {links.map((link) => (
-          <li key={link.label}>
-            {link.href ? (
-              <Link href={link.href} className="block py-1.5 text-[13px] text-secondary hover:text-primary">
-                {link.label}
-              </Link>
-            ) : (
-              <span className="block py-1.5 text-[13px] text-tertiary">{link.label}</span>
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 export function Footer() {
+  const { t, isRtl } = useLanguage();
+
+  const shopLinks: FooterLink[] = [
+    { labelKey: "laptops", href: "/categories/laptops" },
+    { labelKey: "desktopsAndPCs", href: "/categories/desktops-pcs" },
+    { labelKey: "components", href: "/categories/components" },
+    { labelKey: "monitors", href: "/categories/monitors" },
+    { labelKey: "deals", href: "/deals" },
+  ];
+
+  const supportLinks: FooterLink[] = [
+    { labelKey: "contactUs", href: "/contact" },
+    { labelKey: "buildService", href: "#build-a-pc" },
+    { labelKey: "warranty" },
+    { labelKey: "trackOrder" },
+    { labelKey: "faq", href: "/faq" },
+  ];
+
+  const companyLinks: FooterLink[] = [
+    { labelKey: "about", href: "/about" },
+    { labelKey: "visitStore", href: "#store-local" },
+    { labelKey: "careers" },
+    { labelKey: "blog", href: "/blog" },
+  ];
+
+  function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
+    return (
+      <div>
+        <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-tertiary">{title}</h4>
+        <ul className="flex flex-col">
+          {links.map((link) => (
+            <li key={link.labelKey}>
+              {link.href ? (
+                <Link href={link.href} className="block py-1.5 text-[13px] text-secondary hover:text-primary">
+                  {t(link.labelKey)}
+                </Link>
+              ) : (
+                <span className="block py-1.5 text-[13px] text-tertiary">{t(link.labelKey)}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
   return (
     <footer className="mt-2 border-t border-border bg-surface">
       <Container>
@@ -62,16 +67,23 @@ export function Footer() {
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-gradient-to-br from-accent to-accent-hover text-white">
                 <LogoMarkIcon className="h-[18px] w-[18px]" aria-hidden="true" />
               </span>
-              DevOps<span className="text-accent">Target</span>
+              {isRtl ? (
+                <>
+                  دیواپس<span className="text-accent">تارگت</span>
+                </>
+              ) : (
+                <>
+                  DevOps<span className="text-accent">Target</span>
+                </>
+              )}
             </Link>
             <p className="mt-3 max-w-[30ch] text-[12.5px] leading-relaxed text-secondary">
-              {storeConfig.city}&rsquo;s trusted computer store — laptops, custom PCs, components,
-              and expert local service.
+              {t("footerDescription")}
             </p>
           </div>
-          <FooterColumn title="Shop" links={shopLinks} />
-          <FooterColumn title="Support" links={supportLinks} />
-          <FooterColumn title="Company" links={companyLinks} />
+          <FooterColumn title={t("footerShopTitle")} links={shopLinks} />
+          <FooterColumn title={t("footerSupportTitle")} links={supportLinks} />
+          <FooterColumn title={t("footerCompanyTitle")} links={companyLinks} />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border py-4 text-xs text-tertiary">
           <span>

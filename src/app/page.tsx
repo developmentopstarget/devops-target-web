@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { Hero } from "@/components/sections/Hero";
 import { CategoryTiles } from "@/components/sections/CategoryTiles";
 import { Deals } from "@/components/sections/Deals";
@@ -27,7 +25,6 @@ export default function Home() {
   return (
     <>
       <JsonLd />
-      <AnnouncementBar />
       <Navbar />
       <main className="flex-1">
         <Hero />
@@ -39,7 +36,6 @@ export default function Home() {
         <Newsletter />
       </main>
       <Footer />
-      <MobileBottomNav />
     </>
   );
 }
