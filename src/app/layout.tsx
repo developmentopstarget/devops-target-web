@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { CartProvider } from "@/components/commerce/CartProvider";
 import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
@@ -66,9 +67,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-bg text-primary">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <CartProvider>
-            <ToastProvider>{children}</ToastProvider>
-          </CartProvider>
+          <AuthProvider>
+            <CartProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </CartProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

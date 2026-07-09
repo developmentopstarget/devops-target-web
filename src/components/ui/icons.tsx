@@ -68,6 +68,24 @@ export function UserIcon(props: IconProps) {
   );
 }
 
+export function LockIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="4" y="10" width="16" height="10" rx="2" />
+      <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+    </svg>
+  );
+}
+
+export function MailIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 6 9-6" />
+    </svg>
+  );
+}
+
 export function CartIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
