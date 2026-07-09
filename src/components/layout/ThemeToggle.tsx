@@ -1,17 +1,9 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { IconButton } from "@/components/ui/IconButton";
 import { MoonIcon, SunIcon } from "@/components/ui/icons";
-
-const noopSubscribe = () => () => {};
-
-// Reports false on the server and on the client's first (hydration) render,
-// then true afterwards — avoids a theme flash without a setState-in-effect.
-function useMounted() {
-  return useSyncExternalStore(noopSubscribe, () => true, () => false);
-}
+import { useMounted } from "@/lib/useMounted";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
