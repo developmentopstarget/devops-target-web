@@ -69,6 +69,8 @@ function writeToStorage(items: CartItem[]) {
 // (there's only ever one, mounted in the root layout), read via
 // useSyncExternalStore so localStorage hydration never causes a mismatch
 // between the server-rendered (always-empty) cart and the client's first paint.
+const EMPTY_CART: CartItem[] = [];
+
 let cartState: CartItem[] = [];
 let hasHydrated = false;
 const listeners = new Set<() => void>();
@@ -97,7 +99,7 @@ function getSnapshot(): CartItem[] {
 }
 
 function getServerSnapshot(): CartItem[] {
-  return [];
+  return EMPTY_CART;
 }
 
 function addItem(product: Product, quantity = 1) {
