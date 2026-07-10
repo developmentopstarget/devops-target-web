@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/currency";
 import { storeConfig } from "@/config/store";
 import { PromoCode, type AppliedPromo } from "@/components/commerce/PromoCode";
 import type { CartItem } from "@/components/commerce/CartProvider";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface OrderSummaryProps {
   items: CartItem[];
@@ -20,6 +21,7 @@ const TAX_RATE = 0.08;
 const FLAT_DELIVERY_FEE = 9.99;
 
 export function OrderSummary({ items, subtotal, className }: OrderSummaryProps) {
+  const { t, lang } = useLanguage();
   const { show } = useToast();
   const [promo, setPromo] = useState<AppliedPromo | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
@@ -41,46 +43,97 @@ export function OrderSummary({ items, subtotal, className }: OrderSummaryProps) 
 
   return (
     <aside
+      dir="ltr"
       className={[
-        "rounded-xl border border-border bg-surface p-4.5 shadow-sm min-[960px]:sticky min-[960px]:top-20",
+        "rounded-xl border border-border bg-surface p-4.5 shadow-sm min-[960px]:sticky min-[960px]:top-20 dir-ltr",
         className ?? "",
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <h2 className="mb-3.5 text-base font-bold text-primary">Order summary</h2>
+      <h2
+        dir={lang === "fa" ? "rtl" : "ltr"}
+        className={[
+          "mb-3.5 text-base font-bold text-primary",
+          lang === "fa" ? "dir-rtl" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {t("orderSummary")}
+      </h2>
 
       <PromoCode applied={promo} onApply={setPromo} onRemove={() => setPromo(null)} />
 
       {hasUnavailableItem && (
         <p className="mb-3 rounded-lg bg-danger/10 px-3 py-2 text-xs font-medium text-danger">
-          Remove out-of-stock items to check out.
+          {t("removeOutOfStock")}
         </p>
       )}
 
       <dl aria-live="polite">
-        <div className="flex justify-between py-1.75 text-[13.5px] text-secondary">
-          <dt>Subtotal</dt>
+        <div
+          dir={lang === "fa" ? "rtl" : "ltr"}
+          className={[
+            "flex justify-between py-1.75 text-[13.5px] text-secondary",
+            lang === "fa" ? "dir-rtl" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <dt>{t("subtotal")}</dt>
           <dd className="font-mono font-semibold text-primary">{formatCurrency(subtotal)}</dd>
         </div>
         {promo && (
-          <div className="flex justify-between py-1.75 text-[13.5px] text-secondary">
-            <dt>Promo ({promo.code})</dt>
+          <div
+            dir={lang === "fa" ? "rtl" : "ltr"}
+            className={[
+              "flex justify-between py-1.75 text-[13.5px] text-secondary",
+              lang === "fa" ? "dir-rtl" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            <dt>{t("promo")} ({promo.code})</dt>
             <dd className="font-mono font-semibold text-success">−{formatCurrency(discount)}</dd>
           </div>
         )}
-        <div className="flex justify-between py-1.75 text-[13.5px] text-secondary">
-          <dt>Local delivery</dt>
+        <div
+          dir={lang === "fa" ? "rtl" : "ltr"}
+          className={[
+            "flex justify-between py-1.75 text-[13.5px] text-secondary",
+            lang === "fa" ? "dir-rtl" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <dt>{t("localDelivery")}</dt>
           <dd className={deliveryFee === 0 ? "text-xs font-bold text-success" : "font-mono font-semibold text-primary"}>
-            {deliveryFee === 0 ? "FREE" : formatCurrency(deliveryFee)}
+            {deliveryFee === 0 ? t("free") : formatCurrency(deliveryFee)}
           </dd>
         </div>
-        <div className="flex justify-between py-1.75 text-[13.5px] text-secondary">
-          <dt>Estimated tax</dt>
+        <div
+          dir={lang === "fa" ? "rtl" : "ltr"}
+          className={[
+            "flex justify-between py-1.75 text-[13.5px] text-secondary",
+            lang === "fa" ? "dir-rtl" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <dt>{t("estimatedTax")}</dt>
           <dd className="font-mono font-semibold text-primary">{formatCurrency(tax)}</dd>
         </div>
-        <div className="mt-2 flex items-baseline justify-between border-t border-border pt-3.5 font-bold">
-          <dt className="text-[15px] text-primary">Total</dt>
+        <div
+          dir={lang === "fa" ? "rtl" : "ltr"}
+          className={[
+            "mt-2 flex items-baseline justify-between border-t border-border pt-3.5 font-bold",
+            lang === "fa" ? "dir-rtl" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <dt className="text-[15px] text-primary">{t("total")}</dt>
           <dd className="font-mono text-[22px] tracking-tight text-primary">{formatCurrency(total)}</dd>
         </div>
       </dl>
@@ -94,17 +147,25 @@ export function OrderSummary({ items, subtotal, className }: OrderSummaryProps) 
         loading={checkingOut}
         onClick={handleCheckout}
       >
-        Checkout →
+        {t("checkout")} →
       </Button>
 
-      <ul className="mt-3.5 flex flex-col gap-2">
+      <ul
+        dir={lang === "fa" ? "rtl" : "ltr"}
+        className={[
+          "mt-3.5 flex flex-col gap-2",
+          lang === "fa" ? "dir-rtl" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <li className="flex gap-2 text-xs text-secondary">
           <ShieldCheckIcon className="mt-0.5 h-[15px] w-[15px] shrink-0 text-accent" aria-hidden="true" />
-          Secure checkout · Stripe
+          {t("secureCheckout")} · Stripe
         </li>
         <li className="flex gap-2 text-xs text-secondary">
           <TruckIcon className="mt-0.5 h-[15px] w-[15px] shrink-0 text-accent" aria-hidden="true" />
-          Free local delivery over {formatCurrency(storeConfig.freeDeliveryThreshold)}, or same-day pickup
+          {t("freeDeliveryOrPickup").replace("{threshold}", formatCurrency(storeConfig.freeDeliveryThreshold))}
         </li>
       </ul>
 
@@ -121,3 +182,4 @@ export function OrderSummary({ items, subtotal, className }: OrderSummaryProps) 
     </aside>
   );
 }
+

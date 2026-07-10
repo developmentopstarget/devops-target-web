@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { CheckIcon, CloseIcon } from "@/components/ui/icons";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface AppliedPromo {
   code: string;
@@ -26,6 +27,7 @@ const VALID_PROMOS: Record<string, number> = {
 type Status = "idle" | "applying" | "invalid";
 
 export function PromoCode({ applied, onApply, onRemove, className }: PromoCodeProps) {
+  const { t, lang } = useLanguage();
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<Status>("idle");
 
@@ -49,8 +51,10 @@ export function PromoCode({ applied, onApply, onRemove, className }: PromoCodePr
   if (applied) {
     return (
       <div
+        dir={lang === "fa" ? "rtl" : "ltr"}
         className={[
           "mb-4 flex items-center justify-between gap-2 rounded-lg bg-success/10 px-3 py-2.5 text-[13px] font-semibold text-success",
+          lang === "fa" ? "dir-rtl" : "",
           className ?? "",
         ]
           .filter(Boolean)
@@ -58,12 +62,12 @@ export function PromoCode({ applied, onApply, onRemove, className }: PromoCodePr
       >
         <span className="flex items-center gap-1.5">
           <CheckIcon className="h-3.5 w-3.5" aria-hidden="true" />
-          Promo {applied.code} applied
+          {t("promoApplied").replace("{code}", applied.code)}
         </span>
         <button
           type="button"
           onClick={onRemove}
-          aria-label="Remove promo code"
+          aria-label={t("removePromoCode")}
           className="text-success/70 hover:text-success"
         >
           <CloseIcon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -74,10 +78,18 @@ export function PromoCode({ applied, onApply, onRemove, className }: PromoCodePr
 
   return (
     <div className={["mb-4", className ?? ""].filter(Boolean).join(" ")}>
-      <div className="flex gap-2">
+      <div
+        dir={lang === "fa" ? "rtl" : "ltr"}
+        className={[
+          "flex gap-2",
+          lang === "fa" ? "dir-rtl" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <Input
-          placeholder="Promo code"
-          aria-label="Promo code"
+          placeholder={t("promoCode")}
+          aria-label={t("promoCode")}
           value={code}
           disabled={status === "applying"}
           onChange={(e) => {
@@ -89,10 +101,23 @@ export function PromoCode({ applied, onApply, onRemove, className }: PromoCodePr
           className="h-10.5"
         />
         <Button type="button" variant="secondary" loading={status === "applying"} onClick={handleApply} className="h-10.5">
-          Apply
+          {t("apply")}
         </Button>
       </div>
-      {status === "invalid" && <p className="mt-1.5 text-xs font-medium text-danger">Invalid or expired code.</p>}
+      {status === "invalid" && (
+        <p
+          dir={lang === "fa" ? "rtl" : "ltr"}
+          className={[
+            "mt-1.5 text-xs font-medium text-danger",
+            lang === "fa" ? "dir-rtl text-right" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          {t("invalidPromoCode")}
+        </p>
+      )}
     </div>
   );
 }
+

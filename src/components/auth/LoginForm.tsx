@@ -9,11 +9,13 @@ import { Button } from "@/components/ui/Button";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { LockIcon, UserIcon } from "@/components/ui/icons";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { useLanguage } from "@/lib/useLanguage";
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
+  const { t, lang } = useLanguage();
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -25,8 +27,8 @@ export function LoginForm() {
     event.preventDefault();
 
     const nextErrors: Record<string, string> = {};
-    if (!identifier.trim()) nextErrors.identifier = "Enter your email or username.";
-    if (!password) nextErrors.password = "Enter your password.";
+    if (!identifier.trim()) nextErrors.identifier = t("enterEmailOrUsername");
+    if (!password) nextErrors.password = t("enterPassword");
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
@@ -38,7 +40,7 @@ export function LoginForm() {
     setSubmitting(false);
 
     if (!result.ok) {
-      setErrors(result.errors ?? { form: "Something went wrong. Please try again." });
+      setErrors(result.errors ?? { form: t("somethingWentWrong") });
       return;
     }
 
@@ -48,13 +50,13 @@ export function LoginForm() {
 
   return (
     <AuthCard
-      title="Welcome back"
-      subtitle="Sign in to your account"
+      title={t("welcomeBack")}
+      subtitle={t("signInAccount")}
       footer={
         <>
-          New here?{" "}
+          {t("newHere")}{" "}
           <Link href="/register" className="font-semibold text-accent hover:text-accent-hover">
-            Create an account
+            {t("createAccount")}
           </Link>
         </>
       }
@@ -63,7 +65,9 @@ export function LoginForm() {
         {errors.form && <ErrorBanner message={errors.form} />}
 
         <Input
-          label="Email or username"
+          label={t("emailOrUsername")}
+          placeholder={t("emailOrUsername")}
+          className="text-left dir-ltr"
           autoComplete="username"
           required
           value={identifier}
@@ -73,7 +77,9 @@ export function LoginForm() {
         />
 
         <Input
-          label="Password"
+          label={t("password")}
+          placeholder={t("password")}
+          className="text-left dir-ltr"
           type="password"
           autoComplete="current-password"
           required
@@ -83,7 +89,15 @@ export function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <div className="-mt-1.5 flex items-center justify-between text-[12.5px]">
+        <div
+          dir={lang === "fa" ? "rtl" : "ltr"}
+          className={[
+            "-mt-1.5 flex items-center justify-between text-[12.5px]",
+            lang === "fa" ? "dir-rtl" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
           <label className="flex items-center gap-1.75 font-medium text-secondary">
             <input
               type="checkbox"
@@ -91,15 +105,15 @@ export function LoginForm() {
               onChange={(e) => setRememberMe(e.target.checked)}
               className="h-3.75 w-3.75 accent-accent"
             />
-            Remember me
+            {t("rememberMe")}
           </label>
           <Link href="/forgot-password" className="font-semibold text-accent hover:text-accent-hover">
-            Forgot password?
+            {t("forgotPassword")}
           </Link>
         </div>
 
         <Button type="submit" fullWidth size="lg" loading={submitting}>
-          Sign in
+          {t("signIn")}
         </Button>
       </form>
     </AuthCard>

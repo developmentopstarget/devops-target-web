@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LogoMarkIcon } from "@/components/ui/icons";
+import { useLanguage } from "@/lib/useLanguage";
+import { iconButtonClassName } from "@/components/ui/IconButton";
 
 export interface AuthCardProps {
   title: string;
@@ -10,8 +12,32 @@ export interface AuthCardProps {
 }
 
 export function AuthCard({ title, subtitle, children, footer }: AuthCardProps) {
+  const { isRtl } = useLanguage();
+
+  const handleToggleDirection = () => {
+    if (typeof window !== "undefined") {
+      const nextDir = isRtl ? "ltr" : "rtl";
+      document.documentElement.dir = nextDir;
+      document.documentElement.lang = nextDir === "rtl" ? "fa" : "en";
+      window.dispatchEvent(new Event("languagechange"));
+    }
+  };
+
   return (
-    <div className="w-full max-w-[420px] rounded-2xl border border-border bg-surface p-6 shadow-md sm:p-7">
+    <div className="relative w-full max-w-[420px] rounded-2xl border border-border bg-surface p-6 shadow-md sm:p-7">
+      <div className="absolute top-3.5 right-3.5 z-10">
+        <button
+          onClick={handleToggleDirection}
+          className={iconButtonClassName()}
+          title={isRtl ? "Switch to English" : "تغییر به فارسی"}
+          aria-label="Toggle language"
+        >
+          <span className="text-[12px] font-bold tracking-tight">
+            {isRtl ? "EN" : "فا"}
+          </span>
+        </button>
+      </div>
+
       <Link
         href="/"
         className="mb-4.5 flex items-center justify-center gap-2.5 text-[16px] font-extrabold tracking-tight text-primary"

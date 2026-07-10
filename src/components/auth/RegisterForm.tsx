@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { LockIcon, MailIcon, UserIcon } from "@/components/ui/icons";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { useLanguage } from "@/lib/useLanguage";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -16,6 +17,7 @@ export function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { register } = useAuth();
+  const { t } = useLanguage();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -25,11 +27,11 @@ export function RegisterForm() {
 
   function validate(): Record<string, string> {
     const next: Record<string, string> = {};
-    if (!username.trim()) next.username = "Username is required.";
-    if (!email.trim()) next.email = "Email is required.";
-    else if (!EMAIL_REGEX.test(email.trim())) next.email = "Enter a valid email address.";
-    if (!password) next.password = "Password is required.";
-    else if (password.length < 8) next.password = "Use at least 8 characters.";
+    if (!username.trim()) next.username = t("usernameRequired");
+    if (!email.trim()) next.email = t("emailRequired");
+    else if (!EMAIL_REGEX.test(email.trim())) next.email = t("enterValidEmail");
+    if (!password) next.password = t("passwordRequired");
+    else if (password.length < 8) next.password = t("useAtLeast8Chars");
     return next;
   }
 
@@ -48,7 +50,7 @@ export function RegisterForm() {
     setSubmitting(false);
 
     if (!result.ok) {
-      setErrors(result.errors ?? { form: "Something went wrong. Please try again." });
+      setErrors(result.errors ?? { form: t("somethingWentWrong") });
       return;
     }
 
@@ -58,13 +60,13 @@ export function RegisterForm() {
 
   return (
     <AuthCard
-      title="Create your account"
-      subtitle="Join for faster checkout & local deals"
+      title={t("createYourAccount")}
+      subtitle={t("joinLocalDeals")}
       footer={
         <>
-          Already have an account?{" "}
+          {t("alreadyHaveAccount")}{" "}
           <Link href="/login" className="font-semibold text-accent hover:text-accent-hover">
-            Sign in
+            {t("signIn")}
           </Link>
         </>
       }
@@ -73,7 +75,9 @@ export function RegisterForm() {
         {errors.form && <ErrorBanner message={errors.form} />}
 
         <Input
-          label="Username"
+          label={t("username")}
+          placeholder={t("username")}
+          className="text-left dir-ltr"
           autoComplete="username"
           required
           value={username}
@@ -83,7 +87,9 @@ export function RegisterForm() {
         />
 
         <Input
-          label="Email"
+          label={t("email")}
+          placeholder={t("email")}
+          className="text-left dir-ltr"
           type="email"
           autoComplete="email"
           required
@@ -94,11 +100,13 @@ export function RegisterForm() {
         />
 
         <Input
-          label="Password"
+          label={t("password")}
+          placeholder={t("password")}
+          className="text-left dir-ltr"
           type="password"
           autoComplete="new-password"
           required
-          hint={errors.password ? undefined : "At least 8 characters."}
+          hint={errors.password ? undefined : t("atLeast8Chars")}
           error={errors.password}
           value={password}
           iconStart={<LockIcon className="h-[17px] w-[17px]" aria-hidden="true" />}
@@ -106,7 +114,7 @@ export function RegisterForm() {
         />
 
         <Button type="submit" fullWidth size="lg" loading={submitting}>
-          Create account
+          {t("createAccount")}
         </Button>
       </form>
     </AuthCard>

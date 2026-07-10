@@ -90,7 +90,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="w-full block space-y-4">
+    <div className="space-y-4">
       {/* Breadcrumbs for navigation */}
       <Breadcrumbs
         items={[
@@ -109,7 +109,7 @@ export default function ProfilePage() {
         </p>
       </div>
 
-      <div className="w-full block space-y-4">
+      <div className="space-y-4">
         <Card header={<h2 className="text-base font-bold text-primary">{t("personalDetails")}</h2>}>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input

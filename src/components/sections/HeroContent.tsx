@@ -24,10 +24,6 @@ export function HeroContent({ featured }: HeroContentProps) {
     <section className="pt-9 pb-2">
       <div className="mx-auto grid w-full max-w-7xl gap-7 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8">
         <div>
-          <span className="inline-flex w-max items-center gap-1.5 rounded-full bg-accent-soft px-2.75 py-1.5 text-[11px] font-bold uppercase tracking-wide text-accent">
-            <span aria-hidden="true">📍</span>
-            {lang === "fa" ? "فروشگاه کامپیوتر محلی شما" : storeConfig.tagline}
-          </span>
           <h1 className="mt-4 mb-3 text-[28px] font-extrabold leading-[1.12] tracking-tight text-primary sm:text-[32px]">
             {t("heroTitle")}
           </h1>

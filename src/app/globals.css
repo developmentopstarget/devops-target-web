@@ -148,3 +148,13 @@ html {
   animation: fade-in 0.2s ease-out forwards;
 }
 
+.dir-ltr {
+  direction: ltr !important;
+}
+
+.dir-rtl {
+  direction: rtl !important;
+}
+
+
+

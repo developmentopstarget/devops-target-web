@@ -89,6 +89,7 @@ export function ResetPasswordForm() {
         <Input
           label="New password"
           type="password"
+          className="text-left dir-ltr"
           autoComplete="new-password"
           required
           value={password}
@@ -99,6 +100,7 @@ export function ResetPasswordForm() {
         <Input
           label="Confirm new password"
           type="password"
+          className="text-left dir-ltr"
           autoComplete="new-password"
           required
           value={confirmPassword}

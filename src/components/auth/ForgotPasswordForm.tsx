@@ -8,10 +8,12 @@ import { Button } from "@/components/ui/Button";
 import { ErrorBanner } from "@/components/ui/ErrorBanner";
 import { CheckIcon, MailIcon } from "@/components/ui/icons";
 import { forgotPasswordRequest } from "@/lib/auth/client";
+import { useLanguage } from "@/lib/useLanguage";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function ForgotPasswordForm() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | undefined>();
@@ -25,11 +27,11 @@ export function ForgotPasswordForm() {
 
     const trimmed = email.trim();
     if (!trimmed) {
-      setError("Email is required.");
+      setError(t("emailRequired"));
       return;
     }
     if (!EMAIL_REGEX.test(trimmed)) {
-      setError("Enter a valid email address.");
+      setError(t("enterValidEmail"));
       return;
     }
 
@@ -49,17 +51,17 @@ export function ForgotPasswordForm() {
   if (sent) {
     return (
       <AuthCard
-        title="Check your email"
-        subtitle={`We've sent a password reset link to ${email.trim()}.`}
+        title={t("checkYourEmail")}
+        subtitle={t("sentResetLinkTo").replace("{email}", email.trim())}
         footer={
           <Link href="/login" className="font-semibold text-accent hover:text-accent-hover">
-            ← Back to sign in
+            ← {t("backToSignIn")}
           </Link>
         }
       >
         <div className="flex items-center justify-center gap-2.5 rounded-xl bg-success/10 px-4 py-3.5 text-sm font-medium text-success">
           <CheckIcon className="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
-          Check your inbox for further instructions.
+          {t("checkInboxInstructions")}
         </div>
       </AuthCard>
     );
@@ -67,18 +69,20 @@ export function ForgotPasswordForm() {
 
   return (
     <AuthCard
-      title="Reset your password"
-      subtitle="We'll email you a reset link"
+      title={t("resetYourPassword")}
+      subtitle={t("emailResetLink")}
       footer={
         <Link href="/login" className="font-semibold text-accent hover:text-accent-hover">
-          ← Back to sign in
+          ← {t("backToSignIn")}
         </Link>
       }
     >
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         {formError && <ErrorBanner message={formError} />}
         <Input
-          label="Email"
+          label={t("email")}
+          placeholder={t("email")}
+          className="text-left dir-ltr"
           type="email"
           autoComplete="email"
           required
@@ -88,7 +92,7 @@ export function ForgotPasswordForm() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <Button type="submit" fullWidth size="lg" loading={submitting}>
-          Send reset link
+          {t("sendResetLink")}
         </Button>
       </form>
     </AuthCard>
