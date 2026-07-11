@@ -5,7 +5,7 @@ Build `devops-target-web` — the Next.js frontend for the DevOps Target compute
 ## Current State
 
 - **Branch**: `main`.
-- **Working Tree Status**: Enhanced authentication and authorization views (login, registration, forgot-password, reset-password) with inline language selectors, dynamic password eye visibility reveals, and full Persian/Farsi localization mappings. Fixed input text alignment to stay strictly Left-to-Right (`text-left dir-ltr`) and resolved icon overlapping/spacing layout conflicts in `Input.tsx` by positioning regular field icons on the right (`right-3`) and separating the password toggle helper (`right-9`). Also removed the redundant location badge and updated the secondary hero button labels to be shorter and more direct across both English and Farsi modes. Verified clean static compiling across all routes using `npm run build`.
+- **Working Tree Status**: Integrated the new unified corporate identity by deploying the combined logo and wordmark asset to the public assets directory (`public/assets/images/niavaran-computer-logo.png`). Updated desktop and mobile navbar layouts, checkout headers, and footers to render the new logo asset, completely replacing the separate icon and text branding nodes across all viewports.
 - **What Works**:
   - Checkout `Pay` now: (1) requires login — redirects to `/login?next=/checkout` if `useAuth().user` is null; (2) POSTs the cart to `/api/orders` (new `POST` handler on the existing proxy), which creates a delivery `Address` via `/api/addresses` first when needed, then calls Django `POST /api/orders/` — real order, server-recomputed totals, real stock decrement; (3) POSTs `{ order_id }` to the new `/api/checkout/intent` proxy → Django `POST /api/checkout/intent/` for a Stripe `client_secret`; (4) confirms payment — real `stripe.confirmCardPayment` if `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is a real key, otherwise the existing card-number-based simulated confirm (decline test card `4000000000000002` still works); (5) on success, maps the real API order (`lib/checkout.ts: mapApiOrderToCheckoutOrder`) into the existing `CheckoutOrder` shape so `/checkout/success` shows the real order number/status without touching those UI components.
   - Errors handled: out-of-stock/oversell rejection from Django (400) surfaces via the existing `ErrorBanner`, cart is preserved; payment decline same treatment; empty cart still redirects to `/cart` (pre-existing, unchanged).
@@ -33,10 +33,12 @@ None.
 
 ## Changed This Session
 
-- `src/lib/useLanguage.ts`: Shortened secondary hero button translation labels (`buildCustomPC`) in both English (`"Custom PC"`) and Farsi (`"کیس سفارشی"`).
-- `src/components/sections/HeroContent.tsx`: Removed the redundant Springfield store location badge containing the pushpin icon and tagline text above the main typography headline.
-- `src/components/ui/Input.tsx`: Updated icons rendering and layout structure inside the relative input wrapper. Repositioned regular field icons on the absolute right (`right-3`) and adjusted the password toggle button to sit at `right-9` to prevent overlapping. Added conditional padding-right classes (`pr-12` when both Lock icon and Eye helper are active) to clear room.
-- `src/components/auth/LoginForm.tsx`, `RegisterForm.tsx`, `ForgotPasswordForm.tsx`, `ResetPasswordForm.tsx`: Applied strict `className="text-left dir-ltr"` to Username, Email, Password, and Password Confirmation field components, ensuring text is always oriented Left-to-Right.
+- `public/assets/images/niavaran-computer-logo.png`: Copied branding logo asset from `docs/Logo/niavaran-computer-logo.png`.
+- `src/components/layout/MobileNavbar.tsx`: Created mobile brand logo component rendering the new branding logo.
+- `src/components/layout/Navbar.tsx`: Replaced separate brand icon and text links with a single `<Image />` component instance rendering the `/assets/images/niavaran-computer-logo.png` asset. Cleaned up unused imports.
+- `src/components/layout/CheckoutHeader.tsx`: Replaced separate brand icon and text links with the `<Image />` component rendering `/assets/images/niavaran-computer-logo.png`.
+- `src/components/layout/Footer.tsx`: Replaced separate brand icon and text links with the `<Image />` component rendering `/assets/images/niavaran-computer-logo.png`, updated dynamic footer text to reference "NIAVARAN" contextually, and refactored the helper component `FooterColumn` outside the render function with proper type definitions (`TranslationKey`) to resolve lint errors.
+- `src/config/store.ts`: Updated `nameFa` string to `"دیوپس تارگت"`.
 
 ## Failed Attempts
 
@@ -89,3 +91,7 @@ None.
 - **Authentication Forms Input Alignment & Icon Overlapping Fix**: Enforced Left-to-Right direction (`text-left dir-ltr`) on all username, email, and password inputs, moved field icons to the absolute right side, and spaced the password reveal button (`right-9`) and Lock icon (`right-3`) to prevent layout collision (Completed: 2026-07-10).
 - **Hero Location Tag Badge Cleanup**: Removed the Springfield local store tagline pushpin badge from the main landing page hero content block, allowing the main typography title to sit cleanly at the top of the hero grid layout (Completed: 2026-07-10).
 - **Secondary Hero Button Shortening**: Updated secondary button labels on the hero section to "Custom PC" (English) and "کیس سفارشی" (Farsi) to be shorter, cleaner, and more direct (Completed: 2026-07-10).
+- **Milestone 4 — Store Branding Update and Logo Integration**: Deployed the combined corporate logo and wordmark asset, simplified primary header branding, and updated dynamic and contextual brand references in the footer (Completed: 2026-07-10).
+## Roadmap pointer
+
+Full project roadmap (Option B — all features) lives in `ROADMAP.md` (repo root) and the Obsidian journal `DevOps-Target.md`. Current position: MVP loop complete; next up is **Phase A (catalog data model + Persian taxonomy)**. See `ROADMAP.md` for phases A–F (flexible pricing, quote system, Iranian payments, 2FA, support chat, launch).
