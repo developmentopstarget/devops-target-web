@@ -149,6 +149,7 @@ export interface ApiOrder {
 const API_ORDER_STATUS_MAP: Record<string, OrderStatus> = {
   pending: "placed",
   pending_payment: "placed",
+  awaiting_verification: "placed",
   paid: "paid",
   preparing: "fulfilling",
   ready: "fulfilling",
@@ -171,6 +172,7 @@ export type OrderStatusBadgeVariant = "neutral" | "accent" | "success" | "warnin
 const ORDER_STATUS_LABELS: Record<string, { variant: OrderStatusBadgeVariant; label: string }> = {
   pending: { variant: "info", label: "Processing" },
   pending_payment: { variant: "warning", label: "Awaiting Payment" },
+  awaiting_verification: { variant: "warning", label: "در انتظار تأیید" },
   paid: { variant: "info", label: "Paid" },
   failed: { variant: "danger", label: "Payment Failed" },
   preparing: { variant: "warning", label: "Preparing" },

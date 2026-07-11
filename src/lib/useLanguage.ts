@@ -200,6 +200,15 @@ const translations = {
     useAtLeast8Chars: "Use at least 8 characters.",
     enterEmailOrUsername: "Enter your email or username.",
     enterPassword: "Enter your password.",
+    quotes: "Quotes",
+    myQuotes: "My Quotes",
+    quoteDetails: "Quote Details",
+    noQuotes: "You have not requested any quotes yet.",
+    statusNew: "New",
+    statusContacted: "Contacted",
+    statusQuoted: "Price Offered",
+    statusApproved: "Approved",
+    statusClosed: "Closed",
   },
   fa: {
     // Header/Search
@@ -400,6 +409,15 @@ const translations = {
     useAtLeast8Chars: "حداقل از ۸ کاراکتر استفاده کنید.",
     enterEmailOrUsername: "ایمیل یا نام کاربری خود را وارد کنید.",
     enterPassword: "رمز عبور خود را وارد کنید.",
+    quotes: "درخواست‌های قیمت",
+    myQuotes: "درخواست‌های قیمت من",
+    quoteDetails: "جزئیات درخواست قیمت",
+    noQuotes: "شما هنوز هیچ درخواست قیمتی ثبت نکرده‌اید.",
+    statusNew: "جدید",
+    statusContacted: "در حال بررسی",
+    statusQuoted: "قیمت‌گذاری شده",
+    statusApproved: "تایید شده",
+    statusClosed: "بسته‌شده",
   }
 } as const;
 

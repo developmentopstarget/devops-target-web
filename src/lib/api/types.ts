@@ -46,6 +46,7 @@ export interface ApiProduct {
   aggregate_rating: number | null;
   review_count: number;
   created_at: string;
+  pricing_mode?: "fixed" | "on_request";
 }
 
 export interface ApiProductDetail extends ApiProduct {

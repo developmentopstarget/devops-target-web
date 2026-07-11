@@ -21,6 +21,7 @@ export interface Product {
   badge?: ProductBadge;
   /** ISO date; used for the "Newest" sort. */
   createdAt?: string;
+  pricing_mode?: "fixed" | "on_request";
 }
 
 // Realistic placeholder data — swap for the Django API response at build/revalidate.

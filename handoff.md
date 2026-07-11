@@ -4,28 +4,22 @@ Build `devops-target-web` — the Next.js frontend for the DevOps Target compute
 
 ## Current State
 
-- **Branch**: `main`.
-- **Working Tree Status**: Integrated the new unified corporate identity by deploying the combined logo and wordmark asset to the public assets directory (`public/assets/images/niavaran-computer-logo.png`). Updated desktop and mobile navbar layouts, checkout headers, and footers to render the new logo asset, completely replacing the separate icon and text branding nodes across all viewports.
+- **Branch**: `feature/phase-d-payments-ui`.
+- **Working Tree Status**: Completed Phase D Frontend Iranian Payments implementation with Online Zarinpal option set as disabled/coming soon.
 - **What Works**:
-  - Checkout `Pay` now: (1) requires login — redirects to `/login?next=/checkout` if `useAuth().user` is null; (2) POSTs the cart to `/api/orders` (new `POST` handler on the existing proxy), which creates a delivery `Address` via `/api/addresses` first when needed, then calls Django `POST /api/orders/` — real order, server-recomputed totals, real stock decrement; (3) POSTs `{ order_id }` to the new `/api/checkout/intent` proxy → Django `POST /api/checkout/intent/` for a Stripe `client_secret`; (4) confirms payment — real `stripe.confirmCardPayment` if `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is a real key, otherwise the existing card-number-based simulated confirm (decline test card `4000000000000002` still works); (5) on success, maps the real API order (`lib/checkout.ts: mapApiOrderToCheckoutOrder`) into the existing `CheckoutOrder` shape so `/checkout/success` shows the real order number/status without touching those UI components.
-  - Errors handled: out-of-stock/oversell rejection from Django (400) surfaces via the existing `ErrorBanner`, cart is preserved; payment decline same treatment; empty cart still redirects to `/cart` (pre-existing, unchanged).
-  - In demo mode (no real Stripe keys — the current state of both `.env.local` and backend `.env`), a failed/skipped intent call is non-fatal: the order already exists in Django regardless, and the simulated confirm still runs.
-  - Mobile bottom navigation strictly ordered LTR (Home, Shop, Cart, Profile) in both language modes, and hidden on desktop viewports (`lg:hidden`).
-  - Mobile bottom nav tabs persistently show Farsi translations when the Farsi locale is active.
-  - Mobile top header navigation strictly ordered LTR (Search Box, Language, Theme, Notifications) in both language modes.
-  - Search input placeholder, text, and cursor dynamically align right in Farsi mode, keeping its structural position on the left.
-  - Desktop navbar elements strictly ordered left-to-right across all locales: `[Logo/Icon]` -> `[Brand Name ("دیوپس تارگت" in fa)]` -> `[Shop Link]` -> `[SearchBar box container]` -> `[Language Icon Toggle]` -> `[Theme Dark/Light Button]` -> `[Notification Bell Icon]` -> `[Cart Drawer Icon]` -> `[Profile User Icon Link]`.
-  - Statically enforced left-to-right macro element flow on the desktop row layout regardless of the active language, utilizing explicit `flex-row dir-ltr` wrappers.
-  - Desktop navbar legacy categorical link groups (Laptops, Desktops & PCs, Components, Deals, and Support) stripped out.
-  - Desktop inner elements wrapped with the centralized `Container` utility component to align logo and profile UserIcon perfectly with the page layout on widescreen monitors.
-  - Account profile layout wrapped in the `Container` utility component to prevent viewport edge drift and align sidebar/views exactly with the global navbar bounds.
-  - Desktop notification system toggles an absolute contextual floating dropdown below the bell icon without altering route URLs or using the mobile drawer.
-  - Anchored desktop notification dropdown directly below the header's bottom edge with a `mt-3` vertical spacing offset, showing `rounded-lg` rounded corners on all four sides.
-  - Removed header overflow clipping to allow full vertical visibility of the notifications list dropdown.
-  - Mobile notification system toggles a floating absolute dropdown card (`absolute top-full right-2 left-2 mt-3 max-w-[calc(100vw-16px)] bg-surface border rounded-lg shadow-xl z-50`) instead of the full-screen drawer.
-  - Added a transparent fixed backdrop layer (`fixed inset-0 z-40 bg-transparent`) for mobile to enable simple tap-to-close-outside behavior.
-- **What's Broken (pre-existing, not touched this session)**: Django `/admin/login/` returns a bare 500 (confirmed via `curl`, `DEBUG=False` masks the traceback) — unrelated to checkout; verified order creation via `manage.py shell` instead. There's also a latent race in `AuthProvider`/`LoginForm` (`router.replace("/account")` in `AuthProvider`'s effect vs. `router.push(next)` in `LoginForm`) that occasionally detours through `/account` before landing on the `next` URL — cosmetic, self-resolves, pre-existing.
-- **Latest Build/Test Status**: `npm run build` ✅, `npm run lint` ✅.
+  - Replaced Stripe payment placeholder with a localized (EN + Farsi/RTL) chooser: "Online Gateway (Zarinpal)" and "Manual Bank Transfer (Card-to-Card / Sheba)".
+  - Default payment method is **Manual Bank Transfer** on load.
+  - Zarinpal Gateway option is **greyed out and unselectable** (marked `disabled: true` with opacity-50 and cursor-not-allowed). Its description displays a "Coming soon" ("بهزودی" / "Coming soon") subtitle.
+  - Submit paths are guarded; Zarinpal initiation will block early if triggered.
+  - Next.js API proxy routes created under `src/app/api/payments/`:
+    - `bank-accounts`: GET endpoint to fetch active bank accounts (or mocks if API_BASE_URL is unset).
+    - `bank-transfer`: POST endpoint to upload receipt screenshot image file and reference number via multipart/form-data.
+    - `zarinpal/initiate`: POST endpoint to start Online Zarinpal payment and obtain redirect URL (dormant but fully intact).
+  - Interactive "Copy" buttons next to Card Number and Sheba Number with copied-state feedback ("Copied!" / "کپی شد!") resetting after 2 seconds.
+  - Modern receipt screenshot file uploader supporting file type constraints (`.png`, `.jpg`, `.jpeg`), size constraints (max 5MB), and showing file metadata and thumbnail previews.
+  - Checkout redirect gate to `/login?next=/checkout` immediately on mount if user is unauthenticated.
+  - Maps order status `awaiting_verification` to the first stage on the stepper, and renders a distinct Farsi warning badge ("در انتظار تأیید") on order history list (`/account/orders`) and details page (`/account/orders/[id]`).
+  - Next.js production build (`npm run build`) and ESLint (`npm run lint`) pass completely and cleanly.
 
 ## Files in Flight
 
@@ -33,12 +27,13 @@ None.
 
 ## Changed This Session
 
-- `public/assets/images/niavaran-computer-logo.png`: Copied branding logo asset from `docs/Logo/niavaran-computer-logo.png`.
-- `src/components/layout/MobileNavbar.tsx`: Created mobile brand logo component rendering the new branding logo.
-- `src/components/layout/Navbar.tsx`: Replaced separate brand icon and text links with a single `<Image />` component instance rendering the `/assets/images/niavaran-computer-logo.png` asset. Cleaned up unused imports.
-- `src/components/layout/CheckoutHeader.tsx`: Replaced separate brand icon and text links with the `<Image />` component rendering `/assets/images/niavaran-computer-logo.png`.
-- `src/components/layout/Footer.tsx`: Replaced separate brand icon and text links with the `<Image />` component rendering `/assets/images/niavaran-computer-logo.png`, updated dynamic footer text to reference "NIAVARAN" contextually, and refactored the helper component `FooterColumn` outside the render function with proper type definitions (`TranslationKey`) to resolve lint errors.
-- `src/config/store.ts`: Updated `nameFa` string to `"دیوپس تارگت"`.
+- `src/lib/checkout.ts`: Added `awaiting_verification` status mapper mapping to `"placed"` stage, and mapped to warning-colored Farsi label `"در انتظار تأیید"` in `ORDER_STATUS_LABELS`.
+- `src/app/api/payments/bank-accounts/route.ts`: Created Next.js GET proxy handler for fetching shop accounts.
+- `src/app/api/payments/bank-transfer/route.ts`: Created Next.js POST proxy handler for receipt multipart/form-data upload.
+- `src/app/api/payments/zarinpal/initiate/route.ts`: Created Next.js POST proxy handler for initiating Zarinpal.
+- `src/components/commerce/PaymentForm.tsx`: Rewritten to show the payment method chooser (defaulting to Bank Transfer, disabling Zarinpal with Coming soon tags), display active shop bank accounts with copy widgets, and support transaction receipt file uploads.
+- `src/app/checkout/page.tsx`: Rewritten to bypass Stripe, validate Zarinpal and Bank Transfer, redirect unauthenticated users on mount, and handle cart clearance and success routing.
+- `web/handoff.md`: Updated project state.
 
 ## Failed Attempts
 
@@ -46,27 +41,18 @@ None.
 
 ## Important Context
 
-- **Demo/simulated payment path is intentional, not a shortcut**: with no real Stripe keys configured anywhere in this repo (frontend `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` unset, backend `STRIPE_SECRET_KEY` unset → defaults to `"mock_secret_key"` in `config/settings.py`), a real call to Stripe's API would always fail. `checkout/page.tsx` gates on `HAS_REAL_STRIPE_KEY` (frontend publishable key presence) so the intent call failing/being skipped in demo mode doesn't block checkout — the order is already real in Django by that point either way.
-- Order `status` vocabulary differs between Django (`pending_payment`, `paid`, `preparing`, `ready`, `shipped`, `delivered`, `failed`, `cancelled`, `refunded`) and the frontend's existing `OrderStatus` (`placed`, `paid`, `fulfilling`, `completed`) — mapped via `mapApiOrderStatus` in `lib/checkout.ts`. Since no Stripe webhook listener runs locally (no `stripe listen` forwarding), orders stay `pending_payment` after a "successful" simulated or even real confirm — this is expected/correct given the environment, not a bug.
-- The delivery address flow creates a **new** `Address` row on every delivery order (via `/api/addresses` POST) rather than reusing/selecting one of the user's saved addresses — matches the checkout page's existing ad-hoc address form UI without requiring a redesign; Django requires an `address_id` FK, so this bridges the two.
-- Product catalog data (`src/data/products.ts`) slugs are kept in sync with the backend's `seed_catalog` management command — `CartItem.slug` is what gets sent as Django's `OrderItemInputSerializer.product` (a `SlugField`).
-- Django's `OrderViewSet` retrieve action is by numeric `pk`, not by order `number` (e.g. `DT-341078`) — so both account order pages fetch the full `GET /api/orders` list and find-by-`number` client-side rather than hitting a per-order detail endpoint. This matches the pattern the detail page already used pre-session; no new `/api/orders/[id]` proxy route was added since it wasn't needed.
-- Django's `OrderSerializer` does not expose the order's `email` field — order-history pages pass the logged-in user's email (`useAuth().user?.email`) into `mapApiOrderToAccountOrder` instead.
-- Django admin (`/admin/login/`) 500s regardless of credentials — pre-existing, unrelated to this work, not fixed this session (out of scope). Order verification was done via `manage.py shell` and the live UI instead.
-- A throwaway `smoketest` / `smoketest@example.com` Django user (password `SmokeTest123!`) was created in a prior session for testing and left in place (harmless, useful for future local testing).
-- **This session**: to verify the DT-341078 order specifically (per the task), I reset the password on the existing local dev user that owns it (`user` / `user@email.com`) to `VerifyTest123!` via `manage.py shell`, since its original password wasn't known. This is a local dev-only Postgres/SQLite DB, not shared/prod data — flagging here per the project's credential-context convention rather than silently changing it.
+- Replaced Stripe entirely as requested.
+- Kept the Zarinpal proxy and initiate fetch logic completely intact but dormant (guarded at the beginning of the handler).
 
 ## Next Step
 
-1. Investigate/fix the pre-existing Django `/admin/login/` 500 error (unrelated to this work) if admin access is needed.
-2. To exercise the real Stripe path, set a real `pk_test_...`/`sk_test_...` pair in `web/.env.local` and `api/backend/.env`, then re-run the checkout smoke test.
-3. If pickup orders should show a real contact (name/phone) captured at checkout time, that needs a backend model change (Django currently stores no pickup-contact data) — currently `/account/orders/[id]` shows a generic fallback line for pickup orders instead.
+1. Implement Django admin updates, theme customizations, or support chat (Phase E/F).
 
 ## Commands to Run First
 
 - `git status --short`
-- `npm run dev` (frontend, port 3000)
-- `../api/backend/.venv/bin/python ../api/backend/manage.py runserver` (backend, port 8000) — or however the Django dev server is normally started in this environment.
+- `npm run lint`
+- `npm run build`
 
 ## Completed Milestones
 
@@ -92,6 +78,5 @@ None.
 - **Hero Location Tag Badge Cleanup**: Removed the Springfield local store tagline pushpin badge from the main landing page hero content block, allowing the main typography title to sit cleanly at the top of the hero grid layout (Completed: 2026-07-10).
 - **Secondary Hero Button Shortening**: Updated secondary button labels on the hero section to "Custom PC" (English) and "کیس سفارشی" (Farsi) to be shorter, cleaner, and more direct (Completed: 2026-07-10).
 - **Milestone 4 — Store Branding Update and Logo Integration**: Deployed the combined corporate logo and wordmark asset, simplified primary header branding, and updated dynamic and contextual brand references in the footer (Completed: 2026-07-10).
-## Roadmap pointer
-
-Full project roadmap (Option B — all features) lives in `ROADMAP.md` (repo root) and the Obsidian journal `DevOps-Target.md`. Current position: MVP loop complete; next up is **Phase A (catalog data model + Persian taxonomy)**. See `ROADMAP.md` for phases A–F (flexible pricing, quote system, Iranian payments, 2FA, support chat, launch).
+- **Milestone 5 — Phase C Frontend Quote System**: Fully implemented localized product quote buttons, QuoteRequestModal, quotes history route panel under /account/quotes, and custom checkout flow integration to pay for approved quotes via order_id parameter query (Completed: 2026-07-11).
+- **Milestone 6 — Phase D Iranian Payments UI**: Implemented chooser for Online Zarinpal and Manual Bank Transfer, active accounts listing with copy feedback, modern receipt file uploader, API route proxies with mocks, and Farsi status badge integrations (Completed: 2026-07-11).
