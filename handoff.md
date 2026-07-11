@@ -5,20 +5,16 @@ Build `devops-target-web` — the Next.js frontend for the DevOps Target compute
 ## Current State
 
 - **Branch**: `feature/phase-d-payments-ui`.
-- **Working Tree Status**: Completed Phase D Frontend Iranian Payments implementation with Online Zarinpal option set as disabled/coming soon.
+- **Working Tree Status**: Completed four checkout/modal layout and functionality fixes (try/catch error handling, widescreen constraints, success page navigation, and QuoteRequestModal body portal).
 - **What Works**:
   - Replaced Stripe payment placeholder with a localized (EN + Farsi/RTL) chooser: "Online Gateway (Zarinpal)" and "Manual Bank Transfer (Card-to-Card / Sheba)".
   - Default payment method is **Manual Bank Transfer** on load.
   - Zarinpal Gateway option is **greyed out and unselectable** (marked `disabled: true` with opacity-50 and cursor-not-allowed). Its description displays a "Coming soon" ("بهزودی" / "Coming soon") subtitle.
-  - Submit paths are guarded; Zarinpal initiation will block early if triggered.
-  - Next.js API proxy routes created under `src/app/api/payments/`:
-    - `bank-accounts`: GET endpoint to fetch active bank accounts (or mocks if API_BASE_URL is unset).
-    - `bank-transfer`: POST endpoint to upload receipt screenshot image file and reference number via multipart/form-data.
-    - `zarinpal/initiate`: POST endpoint to start Online Zarinpal payment and obtain redirect URL (dormant but fully intact).
-  - Interactive "Copy" buttons next to Card Number and Sheba Number with copied-state feedback ("Copied!" / "کپی شد!") resetting after 2 seconds.
-  - Modern receipt screenshot file uploader supporting file type constraints (`.png`, `.jpg`, `.jpeg`), size constraints (max 5MB), and showing file metadata and thumbnail previews.
-  - Checkout redirect gate to `/login?next=/checkout` immediately on mount if user is unauthenticated.
-  - Maps order status `awaiting_verification` to the first stage on the stepper, and renders a distinct Farsi warning badge ("در انتظار تأیید") on order history list (`/account/orders`) and details page (`/account/orders/[id]`).
+  - Zarinpal checkout handles redirect spinning state without premature reset.
+  - Checkout payment submit `handlePay` wrapped in `try/catch/finally` handles unexpected network and payment errors gracefully.
+  - Checkout page now constrains its width on large viewports (`lg+`) instead of stretching edge-to-edge.
+  - "View order" button on success page successfully redirects to `/account/orders` instead of throwing a stub toast.
+  - Quote modal renders in a body portal (`createPortal`) with SSR guards to avoid clipping/flicker issues inside product cards.
   - Next.js production build (`npm run build`) and ESLint (`npm run lint`) pass completely and cleanly.
 
 ## Files in Flight
@@ -27,9 +23,15 @@ None.
 
 ## Changed This Session
 
-- `src/components/commerce/OrderSummary.tsx`: Replaced dummy toast checkout stub with Next.js router navigation pushing to `/checkout` on click, and dropped the now-unused `useToast` import.
-- `src/app/layout.tsx`: Updated the root HTML element default language to `fa` and direction to `rtl`.
-- `src/lib/useLanguage.ts`: Changed initial useState states for `lang` to `"fa"` and `dir` to `"rtl"` to load Farsi (RTL) layout by default.
+- `src/app/checkout/page.tsx`:
+  - Wrapped `handlePay` body in a `try/catch/finally` block to catch and handle errors dynamically, keeping the Zarinpal-redirect branch from premature spinner resets.
+  - Removed `max-w-full` overrides from the `main` and `Container` elements to allow proper viewport limit constraint (`lg:max-w-6xl`) at `lg` screens and above.
+- `src/app/checkout/success/page.tsx`:
+  - Replaced the stub toast onClick handler on the "View order" button with standard `useRouter` redirection to `/account/orders`.
+  - Removed the now-unused `useToast` import.
+- `src/components/commerce/QuoteRequestModal.tsx`:
+  - Rendered the modal container via `createPortal` to mount it under `document.body` instead of inside the product card.
+  - Added SSR checks (`typeof document === "undefined"`) to safeguard server-side rendering.
 
 ## Failed Attempts
 

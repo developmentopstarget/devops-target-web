@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { IconButton } from "@/components/ui/IconButton";
@@ -118,7 +119,9 @@ export function QuoteRequestModal({ product, isOpen, onClose }: QuoteRequestModa
     typeof window !== "undefined" ? window.location.pathname + window.location.search : ""
   )}`;
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-all duration-300"
       onClick={handleBackdropClick}
@@ -267,6 +270,7 @@ export function QuoteRequestModal({ product, isOpen, onClose }: QuoteRequestModa
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

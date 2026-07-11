@@ -8,12 +8,12 @@ import { CartIcon } from "@/components/ui/icons";
 import { OrderConfirmation } from "@/components/commerce/OrderConfirmation";
 import { OrderStatusStepper } from "@/components/commerce/OrderStatusStepper";
 import { OrderReview } from "@/components/commerce/OrderReview";
-import { useToast } from "@/components/ui/Toast";
+import { useRouter } from "next/navigation";
 import { readOrder } from "@/lib/checkout";
 import { useMounted } from "@/lib/useMounted";
 
 export default function CheckoutSuccessPage() {
-  const { show } = useToast();
+  const router = useRouter();
   const mounted = useMounted();
   const order = mounted ? readOrder() : null;
 
@@ -53,7 +53,7 @@ export default function CheckoutSuccessPage() {
                 <Button
                   type="button"
                   fullWidth
-                  onClick={() => show("Order history isn't available yet in this preview.", "info")}
+                  onClick={() => router.push("/account/orders")}
                 >
                   View order
                 </Button>

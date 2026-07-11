@@ -235,15 +235,16 @@ function CheckoutPageContent() {
 
     setPaymentError(null);
     setSubmitting(true);
+    let shouldResetSubmitting = true;
 
-    let apiOrder: ApiOrder;
+    try {
+      let apiOrder: ApiOrder;
 
-    if (existingOrder) {
-      // Step 1 Skip: order already exists in Django
-      apiOrder = existingOrder;
-    } else {
-      // Step 1: create the real order server-side.
-      try {
+      if (existingOrder) {
+        // Step 1 Skip: order already exists in Django
+        apiOrder = existingOrder;
+      } else {
+        // Step 1: create the real order server-side.
         const orderRes = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -257,73 +258,78 @@ function CheckoutPageContent() {
 
         if (orderRes.status === 401) {
           router.push(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
-          setSubmitting(false);
           return;
         }
 
         const orderData = await orderRes.json().catch(() => null);
         if (!orderRes.ok) {
           setPaymentError(extractOrderErrorMessage(orderData) ?? "Could not place your order. Please try again.");
-          setSubmitting(false);
           return;
         }
 
         apiOrder = orderData as ApiOrder;
-      } catch {
-        setPaymentError("Could not reach the server. Please try again.");
-        setSubmitting(false);
+      }
+
+      // Step 2: confirm payment (Zarinpal initiate or manual bank transfer upload)
+      const result = await paymentRef.current?.confirmPayment(undefined, apiOrder.id);
+
+      if (!result?.ok) {
+        setPaymentError(result?.message ?? "Payment failed. Please try again.");
         return;
       }
-    }
 
-    // Step 2: confirm payment (Zarinpal initiate or manual bank transfer upload)
-    const result = await paymentRef.current?.confirmPayment(undefined, apiOrder.id);
+      // If selected method was Zarinpal, the user is being redirected to the payment url
+      if (paymentRef.current?.paymentMethod === "zarinpal") {
+        if (!existingOrder) {
+          clear();
+        }
+        shouldResetSubmitting = false;
+        return;
+      }
 
-    if (!result?.ok) {
-      setPaymentError(result?.message ?? "Payment failed. Please try again.");
-      setSubmitting(false);
-      return;
-    }
+      // For Bank Transfer, construct the localized CheckoutOrder
+      const order = mapApiOrderToCheckoutOrder(
+        {
+          ...apiOrder,
+          status: "awaiting_verification",
+        },
+        {
+          email: email.trim(),
+          deliveryMethod,
+          address: deliveryMethod === "delivery" ? address : undefined,
+          pickupContact: deliveryMethod === "pickup" ? pickupContact : undefined,
+          items: checkoutItems,
+        }
+      );
 
-    // If selected method was Zarinpal, the user is being redirected to the payment url
-    if (paymentRef.current?.paymentMethod === "zarinpal") {
+      setPlacingOrder(true);
+      saveOrder(order);
+      
+      // Only clear current shopping cart if this was NOT an existing quote payment
       if (!existingOrder) {
         clear();
       }
-      return;
-    }
 
-    // For Bank Transfer, construct the localized CheckoutOrder
-    const order = mapApiOrderToCheckoutOrder(
-      {
-        ...apiOrder,
-        status: "awaiting_verification",
-      },
-      {
-        email: email.trim(),
-        deliveryMethod,
-        address: deliveryMethod === "delivery" ? address : undefined,
-        pickupContact: deliveryMethod === "pickup" ? pickupContact : undefined,
-        items: checkoutItems,
+      router.push("/checkout/success");
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      setPaymentError(
+        lang === "fa"
+          ? "خطای غیرمنتظره در پرداخت."
+          : "Unexpected error during checkout."
+      );
+    } finally {
+      if (shouldResetSubmitting) {
+        setSubmitting(false);
       }
-    );
-
-    setPlacingOrder(true);
-    saveOrder(order);
-    
-    // Only clear current shopping cart if this was NOT an existing quote payment
-    if (!existingOrder) {
-      clear();
     }
-
-    router.push("/checkout/success");
   }
 
   return (
     <>
       <CheckoutHeader />
-      <main className="flex-1 max-w-full overflow-x-hidden box-border">
-        <Container className="max-w-full overflow-x-hidden box-border">
+      <main className="flex-1 overflow-x-hidden box-border">
+        <Container className="lg:max-w-6xl overflow-x-hidden box-border">
           <h1 className="pb-1 pt-5.5 text-2xl font-extrabold tracking-tight text-primary">
             {existingOrder
               ? lang === "fa"
