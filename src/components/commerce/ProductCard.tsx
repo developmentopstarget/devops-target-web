@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Rating } from "@/components/ui/Rating";
 import { ComponentsIcon } from "@/components/ui/icons";
 import { StockBadge } from "@/components/commerce/StockBadge";
 import { PriceTag } from "@/components/commerce/PriceTag";
 import { AddToCartButton } from "@/components/commerce/AddToCartButton";
+import { Button } from "@/components/ui/Button";
+import { QuoteRequestModal } from "@/components/commerce/QuoteRequestModal";
 import type { Product } from "@/data/products";
 import { useLanguage } from "@/lib/useLanguage";
 
@@ -18,7 +21,8 @@ export interface ProductCardProps {
 export function ProductCard({ product, href }: ProductCardProps) {
   const outOfStock = product.stock === "out-of-stock";
   const link = href ?? `/products/${product.slug}`;
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
@@ -51,9 +55,40 @@ export function ProductCard({ product, href }: ProductCardProps) {
         </Link>
         <p className="text-xs text-secondary">{product.spec}</p>
         <Rating value={product.rating} count={product.reviewCount} />
-        <PriceTag amount={product.price} compareAt={product.compareAtPrice} className="mt-auto pt-1" />
-        <AddToCartButton product={product} disabled={outOfStock} className="mt-2" />
+        {product.pricing_mode === "on_request" ? (
+          <div className="mt-auto pt-1 flex flex-col gap-2">
+            <span className="text-xs font-semibold text-accent uppercase tracking-wider">
+              {lang === "fa" ? "قیمت بر اساس درخواست" : "Price on Request"}
+            </span>
+            <Button
+              type="button"
+              fullWidth
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsModalOpen(true);
+              }}
+            >
+              {lang === "fa" ? "تماس بگیرید" : "Request a quote"}
+            </Button>
+          </div>
+        ) : (
+          <>
+            <PriceTag amount={product.price} compareAt={product.compareAtPrice} className="mt-auto pt-1" />
+            <AddToCartButton product={product} disabled={outOfStock} className="mt-2" />
+          </>
+        )}
       </div>
+
+      {isModalOpen && (
+        <QuoteRequestModal
+          product={product}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
+

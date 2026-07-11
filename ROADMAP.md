@@ -7,11 +7,16 @@ Option B — **build all features** (no deferral). Canonical roadmap; mirrored i
 
 DevOps Target is the rebuild of **niavarancomputer.com** (نیاوران کامپیوتر) — a Tehran computer shop. Two repos: `devops-target-web` (Next.js 16 + TS + Tailwind 4) + `devops-target-api` (Django + DRF + Channels). Bilingual EN + Farsi/RTL (Vazirmatn). Non-technical shop owner must be able to run the whole store from the admin.
 
-## Where we are (2026-07-09)
+## Where we are (2026-07-11)
 
-**MVP loop is live end-to-end:** browse real catalog → cart → checkout → real order + server-side totals + atomic stock decrement → Django admin management → customer order history. Auth (djoser) wired. EN + Farsi/RTL with Vazirmatn. Niavaran logo integrated. Django admin working.
-Backend increments 1–5 done, 118 tests passing.
-**⚠️ Payments = Stripe, which is a DEV STAND-IN only** (Stripe doesn't operate in Iran) — to be replaced per Phase D.
+**MVP loop live end-to-end** + **Phases A, B, C done; Phase D backend done.** (Built with Gemini Antigravity while resting.)
+- **Phase A (catalog data model) — DONE:** `pricing_mode` fixed|on_request, nullable price, `type`, `condition`, Pillow `ImageField` uploads, Persian taxonomy seed.
+- **Phase B (admin friendliness) — DONE:** `django-unfold` theme, Farsi admin UI (RTL, Tehran TZ), Persian labels/help text, image-preview widget.
+- **Phase C (quote system) — DONE:** backend `QuoteRequest` → auto-creates payable `Order` on approval; frontend quote button + `QuoteRequestModal` + `/account/quotes` + pay-approved-quote checkout (web `feature/phase-c-quotes-ui`).
+- **Phase D (Iranian payments) — BACKEND DONE:** `BankAccount` + `Payment` (receipt `ImageField`, `verification_status` pending/approved/rejected, `verified_by/at`) models; `Order.awaiting_verification` state with never-auto-approve guard; admin verify action; Zarinpal stub views. Committed + pushed on api branch `feature/phase-d-payments` (`4582dd4`, migrations 0005/0006/0007, 132 tests passing).
+
+**➡️ NEXT = Phase D frontend** (payment-method chooser, bank-account display + copy, receipt upload, awaiting-verification state, admin verify UX) + real Zarinpal wiring.
+**⚠️ Payments still = Stripe DEV STAND-IN only** (Stripe doesn't operate in Iran) — being replaced by Phase D.
 
 ## Locked decisions
 

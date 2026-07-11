@@ -1,7 +1,7 @@
 // Local swap points — replace before launch for a new city/store.
 export const storeConfig = {
   name: "DevOps Target",
-  nameFa: "دیواپس تارگت",
+  nameFa: "دیوپس تارگت",
   city: "Springfield",
   cityFa: "اسپرینگفیلد",
   tagline: "Springfield's computer store",

@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/Input";
 import { CheckoutStepCard } from "@/components/commerce/CheckoutStepCard";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface ContactStepProps {
   email: string;
@@ -10,11 +11,13 @@ export interface ContactStepProps {
 }
 
 export function ContactStep({ email, onEmailChange, emailOptIn, onEmailOptInChange, error }: ContactStepProps) {
+  const { t } = useLanguage();
+
   return (
-    <CheckoutStepCard step={1} title="Contact">
+    <CheckoutStepCard step={1} title={t("contact")}>
       <Input
         type="email"
-        label="Email"
+        label={t("email")}
         placeholder="you@email.com"
         autoComplete="email"
         required
@@ -29,7 +32,7 @@ export function ContactStep({ email, onEmailChange, emailOptIn, onEmailOptInChan
           onChange={(e) => onEmailOptInChange(e.target.checked)}
           className="h-4 w-4 accent-accent"
         />
-        Email me order updates and local deals
+        {t("emailOptInLabel")}
       </label>
     </CheckoutStepCard>
   );

@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
+import Image from "next/image";
 import { iconButtonClassName } from "@/components/ui/IconButton";
-import { LogoMarkIcon, BellIcon, CloseIcon, UserIcon } from "@/components/ui/icons";
-import { primaryNav } from "@/config/nav";
+import { BellIcon, UserIcon } from "@/components/ui/icons";
 import { Container } from "@/components/layout/Container";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -12,7 +11,6 @@ import { CartButton } from "@/components/layout/CartButton";
 import { MobileDrawer } from "@/components/layout/MobileDrawer";
 import { useLanguage } from "@/lib/useLanguage";
 import { useState, useEffect } from "react";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { useToast } from "@/components/ui/Toast";
 
 interface NotificationItem {
@@ -263,20 +261,16 @@ export function Navbar() {
         <div className="flex flex-row dir-ltr items-center gap-3">
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2.5 text-[16px] font-extrabold tracking-tight text-primary"
+            className="flex shrink-0 items-center"
           >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-gradient-to-br from-accent to-accent-hover text-white">
-              <LogoMarkIcon className="h-[18px] w-[18px]" aria-hidden="true" />
-            </span>
-            {isRtl ? (
-              <>
-                دیوپس<span className="text-accent">تارگت</span>
-              </>
-            ) : (
-              <>
-                DevOps<span className="text-accent">Target</span>
-              </>
-            )}
+            <Image
+              src="/assets/images/niavaran-computer-logo.png"
+              alt="Niavaran Computer Logo"
+              width={160}
+              height={32}
+              className="h-8 w-auto object-contain"
+              priority
+            />
           </Link>
 
           <Link

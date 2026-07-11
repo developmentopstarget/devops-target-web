@@ -32,6 +32,7 @@ export function mapApiProduct(api: ApiProduct): Product {
     stock: api.stock_status,
     badge: deriveBadge(api, price, compareAtPrice),
     createdAt: api.created_at,
+    pricing_mode: api.pricing_mode,
   };
 }
 

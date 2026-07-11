@@ -15,9 +15,8 @@ import {
   TruckIcon,
   ShieldCheckIcon,
   HeartIcon,
+  DollarIcon,
 } from "@/components/ui/icons";
-
-
 
 // Simple Log Out Icon
 function LogOutIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -90,6 +89,12 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
       labelKey: "orderHistory" as const,
       href: "/account/orders",
       icon: <TruckIcon className="h-4.5 w-4.5" />,
+      exact: false,
+    },
+    {
+      labelKey: "quotes" as const,
+      href: "/account/quotes",
+      icon: <DollarIcon className="h-4.5 w-4.5" />,
       exact: false,
     },
     {

@@ -1,7 +1,8 @@
 import { CheckoutStepCard } from "@/components/commerce/CheckoutStepCard";
 import { formatCurrency } from "@/lib/currency";
 import { storeConfig } from "@/config/store";
-import { computeDeliveryFee, PICKUP_READY_ESTIMATE, type CheckoutDeliveryMethod } from "@/lib/checkout";
+import { computeDeliveryFee, type CheckoutDeliveryMethod } from "@/lib/checkout";
+import { useLanguage } from "@/lib/useLanguage";
 
 export interface DeliveryMethodProps {
   value: CheckoutDeliveryMethod;
@@ -10,6 +11,7 @@ export interface DeliveryMethodProps {
 }
 
 export function DeliveryMethod({ value, onChange, subtotal }: DeliveryMethodProps) {
+  const { t } = useLanguage();
   const deliveryFee = computeDeliveryFee("delivery", subtotal);
 
   const options: Array<{
@@ -21,23 +23,23 @@ export function DeliveryMethod({ value, onChange, subtotal }: DeliveryMethodProp
   }> = [
     {
       id: "pickup",
-      title: "Same-day pickup",
-      description: `${storeConfig.name} · ${storeConfig.address.line1}, ${storeConfig.city} — ${PICKUP_READY_ESTIMATE}`,
-      price: "FREE",
+      title: t("sameDayPickupTitle"),
+      description: `${storeConfig.name} · ${storeConfig.address.line1}, ${storeConfig.city} — ${t("pickupReadyEstimate")}`,
+      price: t("free"),
       priceClassName: "text-success",
     },
     {
       id: "delivery",
-      title: "Local delivery",
-      description: `${storeConfig.city} area · next business day`,
-      price: deliveryFee === 0 ? `FREE over ${formatCurrency(storeConfig.freeDeliveryThreshold)}` : formatCurrency(deliveryFee),
+      title: t("localDelivery"),
+      description: t("deliveryDescription").replace("{city}", storeConfig.city),
+      price: deliveryFee === 0 ? t("freeOverAmount").replace("{amount}", formatCurrency(storeConfig.freeDeliveryThreshold)) : formatCurrency(deliveryFee),
       priceClassName: deliveryFee === 0 ? "text-success" : "text-primary",
     },
   ];
 
   return (
-    <CheckoutStepCard step={2} title="Delivery method">
-      <div role="radiogroup" aria-label="Delivery method" className="grid gap-2.5">
+    <CheckoutStepCard step={2} title={t("deliveryMethod")}>
+      <div role="radiogroup" aria-label={t("deliveryMethod")} className="grid gap-2.5">
         {options.map((option) => {
           const selected = value === option.id;
           return (

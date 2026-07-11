@@ -13,8 +13,10 @@ import Link from "next/link";
 import { formatCurrency } from "@/lib/currency";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { getOrderStatusLabel, mapApiOrderToAccountOrder, type ApiOrder, type CheckoutOrder } from "@/lib/checkout";
+import { useLanguage } from "@/lib/useLanguage";
 
 export default function OrdersPage() {
+  const { t, lang } = useLanguage();
   const toast = useToast();
   const { user } = useAuth();
   const [orders, setOrders] = useState<CheckoutOrder[]>([]);
@@ -32,18 +34,18 @@ export default function OrdersPage() {
         const data = (await res.json()) as ApiOrder[];
         setOrders(data.map((order) => mapApiOrderToAccountOrder(order, user?.email ?? "")));
       } catch {
-        setError("Could not load your orders.");
-        toast.show("Could not load your orders.", "error");
+        setError(t("couldNotLoadOrderDetails"));
+        toast.show(t("couldNotLoadOrderDetails"), "error");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchOrders();
-  }, [toast, user?.email, reloadKey]);
+  }, [toast, user?.email, reloadKey, t]);
 
   const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString("en-US", {
+    return new Date(isoString).toLocaleDateString(lang === "fa" ? "fa-IR" : "en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -55,18 +57,18 @@ export default function OrdersPage() {
       {/* Breadcrumbs */}
       <Breadcrumbs
         items={[
-          { label: "Home", href: "/" },
-          { label: "Account", href: "/account" },
-          { label: "Orders", href: "/account/orders" },
+          { label: t("home"), href: "/" },
+          { label: t("account"), href: "/account" },
+          { label: t("orderHistory"), href: "/account/orders" },
         ]}
       />
 
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-extrabold tracking-tight text-primary">
-          Order History
+          {t("orderHistory")}
         </h1>
         <p className="text-[13px] text-secondary">
-          Track and manage your online and in-store computer hardware orders.
+          {t("orderHistoryDesc")}
         </p>
       </div>
 
@@ -93,11 +95,11 @@ export default function OrdersPage() {
       ) : orders.length === 0 ? (
         <EmptyState
           icon={<TruckIcon className="h-6 w-6" />}
-          title="No orders found"
-          description="You haven't placed any orders yet."
+          title={t("noOrdersFound")}
+          description={t("noOrdersPlacedYet")}
           action={
             <Button as="a" href="/products">
-              Start Shopping
+              {t("startShopping")}
             </Button>
           }
           className="py-12"
@@ -115,7 +117,7 @@ export default function OrdersPage() {
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                     <div>
                       <p className="text-[11px] font-semibold text-secondary uppercase tracking-wider">
-                        Order Number
+                        {t("orderNumber")}
                       </p>
                       <p className="text-[13.5px] font-bold font-mono text-primary">
                         {order.orderNumber}
@@ -123,7 +125,7 @@ export default function OrdersPage() {
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold text-secondary uppercase tracking-wider">
-                        Date Placed
+                        {t("datePlaced")}
                       </p>
                       <p className="text-[13px] font-semibold text-primary">
                         {formatDate(order.placedAt)}
@@ -131,7 +133,7 @@ export default function OrdersPage() {
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold text-secondary uppercase tracking-wider">
-                        Total Amount
+                        {t("totalAmount")}
                       </p>
                       <p className="text-[13.5px] font-bold font-mono text-accent">
                         {formatCurrency(order.total)}
@@ -139,7 +141,7 @@ export default function OrdersPage() {
                     </div>
                   </div>
                   <div>
-                    <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
+                    <Badge variant={statusConfig.variant}>{t(statusConfig.key)}</Badge>
                   </div>
                 </div>
 
@@ -161,7 +163,7 @@ export default function OrdersPage() {
                             )}
                           </h4>
                           <p className="text-xs text-secondary mt-0.5">
-                            Quantity: {item.quantity} · {formatCurrency(item.unitPrice)} each
+                            {t("orderItemQuantityEach").replace("{quantity}", String(item.quantity)).replace("{price}", formatCurrency(item.unitPrice))}
                           </p>
                         </div>
                       </div>
@@ -170,7 +172,7 @@ export default function OrdersPage() {
 
                   <div className="mt-5 pt-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
                     <p className="text-xs text-secondary">
-                      {totalQty} item{totalQty === 1 ? "" : "s"} · {order.deliveryMethod === "pickup" ? "In-Store Pickup" : "Local Home Delivery"}
+                      {totalQty} {t(totalQty === 1 ? "itemSingular" : "itemPlural")} · {order.deliveryMethod === "pickup" ? t("inStorePickup") : t("localHomeDelivery")}
                     </p>
                     <div className="flex gap-2">
                       <Button
@@ -179,7 +181,7 @@ export default function OrdersPage() {
                         variant="secondary"
                         size="sm"
                       >
-                        View Order Details
+                        {t("viewOrderDetails")}
                       </Button>
                     </div>
                   </div>
