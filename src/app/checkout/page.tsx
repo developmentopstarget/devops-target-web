@@ -35,18 +35,21 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const emptyAddress: CheckoutAddress = { firstName: "", lastName: "", line1: "", city: "", postalCode: "", phone: "" };
 const emptyPickupContact: PickupContact = { firstName: "", lastName: "", phone: "" };
 
+function CheckoutLoading() {
+  const { t } = useLanguage();
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-bg">
+      <div className="text-center space-y-4">
+        <div className="h-10 w-10 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-sm text-secondary">{t("loadingCheckout")}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function CheckoutPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-bg">
-          <div className="text-center space-y-4">
-            <div className="h-10 w-10 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm text-secondary">Loading checkout...</p>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<CheckoutLoading />}>
       <CheckoutPageContent />
     </Suspense>
   );
@@ -60,7 +63,7 @@ function CheckoutPageContent() {
   const { items, subtotal, clear } = useCart();
   const { show } = useToast();
   const { user, loading: authLoading } = useAuth();
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const paymentRef = useRef<PaymentFormHandle>(null);
   const mounted = useMounted();
 
@@ -118,24 +121,18 @@ function CheckoutPageContent() {
           }
         } else {
           setLoadOrderError(
-            lang === "fa"
-              ? "سفارش مورد نظر پیدا نشد."
-              : `We couldn't find an order with the ID: ${orderIdParam}`
+            t("orderNotFoundWithId").replace("{id}", orderIdParam ?? "")
           );
         }
       } catch {
-        setLoadOrderError(
-          lang === "fa"
-            ? "خطا در بارگذاری اطلاعات سفارش."
-            : "Could not load order details."
-        );
+        setLoadOrderError(t("couldNotLoadOrderDetails"));
       } finally {
         setLoadingExistingOrder(false);
       }
     };
 
     fetchExistingOrder();
-  }, [orderIdParam, mounted, lang]);
+  }, [orderIdParam, mounted, t]);
 
   useEffect(() => {
     if (mounted && !placingOrder && !orderIdParam && items.length === 0) {
@@ -151,7 +148,7 @@ function CheckoutPageContent() {
         <div className="text-center space-y-4">
           <div className="h-10 w-10 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm text-secondary">
-            {lang === "fa" ? "در حال بارگذاری اطلاعات سفارش..." : "Loading order details..."}
+            {t("loadingOrderDetails")}
           </p>
         </div>
       </div>
@@ -193,22 +190,22 @@ function CheckoutPageContent() {
   function validate(): Record<string, string> {
     const next: Record<string, string> = {};
     if (!email.trim()) {
-      next.email = "Email is required.";
+      next.email = t("emailRequired");
     } else if (!EMAIL_REGEX.test(email.trim())) {
-      next.email = "Enter a valid email address.";
+      next.email = t("enterValidEmail");
     }
 
     if (deliveryMethod === "delivery") {
-      if (!address.firstName.trim()) next.firstName = "Required.";
-      if (!address.lastName.trim()) next.lastName = "Required.";
-      if (!address.line1.trim()) next.line1 = "Required.";
-      if (!address.city.trim()) next.city = "Required.";
-      if (!address.postalCode.trim()) next.postalCode = "Required.";
-      if (!address.phone.trim()) next.phone = "Required.";
+      if (!address.firstName.trim()) next.firstName = t("fieldRequired");
+      if (!address.lastName.trim()) next.lastName = t("fieldRequired");
+      if (!address.line1.trim()) next.line1 = t("fieldRequired");
+      if (!address.city.trim()) next.city = t("fieldRequired");
+      if (!address.postalCode.trim()) next.postalCode = t("fieldRequired");
+      if (!address.phone.trim()) next.phone = t("fieldRequired");
     } else {
-      if (!pickupContact.firstName.trim()) next.firstName = "Required.";
-      if (!pickupContact.lastName.trim()) next.lastName = "Required.";
-      if (!pickupContact.phone.trim()) next.phone = "Required.";
+      if (!pickupContact.firstName.trim()) next.firstName = t("fieldRequired");
+      if (!pickupContact.lastName.trim()) next.lastName = t("fieldRequired");
+      if (!pickupContact.phone.trim()) next.phone = t("fieldRequired");
     }
 
     return next;
@@ -223,13 +220,13 @@ function CheckoutPageContent() {
     const validationErrors = validate();
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
-      show("Please fix the highlighted fields.", "error");
+      show(t("fixHighlightedFields"), "error");
       return;
     }
 
     const isPaymentValid = paymentRef.current?.validate();
     if (!isPaymentValid) {
-      show("Please check payment details and try again.", "error");
+      show(t("checkPaymentDetails"), "error");
       return;
     }
 
@@ -263,7 +260,7 @@ function CheckoutPageContent() {
 
         const orderData = await orderRes.json().catch(() => null);
         if (!orderRes.ok) {
-          setPaymentError(extractOrderErrorMessage(orderData) ?? "Could not place your order. Please try again.");
+          setPaymentError(extractOrderErrorMessage(orderData) ?? t("couldNotPlaceOrder"));
           return;
         }
 
@@ -313,11 +310,7 @@ function CheckoutPageContent() {
       router.push("/checkout/success");
     } catch (err) {
       console.error("Checkout failed:", err);
-      setPaymentError(
-        lang === "fa"
-          ? "خطای غیرمنتظره در پرداخت."
-          : "Unexpected error during checkout."
-      );
+      setPaymentError(t("unexpectedCheckoutError"));
     } finally {
       if (shouldResetSubmitting) {
         setSubmitting(false);
@@ -331,13 +324,7 @@ function CheckoutPageContent() {
       <main className="flex-1 overflow-x-hidden box-border">
         <Container className="lg:max-w-6xl overflow-x-hidden box-border">
           <h1 className="pb-1 pt-5.5 text-2xl font-extrabold tracking-tight text-primary">
-            {existingOrder
-              ? lang === "fa"
-                ? "پرداخت درخواست قیمت"
-                : "Quote Checkout"
-              : lang === "fa"
-              ? "تسویه حساب"
-              : "Checkout"}
+            {existingOrder ? t("quoteCheckout") : t("checkout")}
           </h1>
           <div className="grid gap-6 pb-14 pt-3.5 min-[920px]:grid-cols-[1fr_360px] min-[920px]:items-start max-w-full overflow-x-hidden box-border">
             <div className="flex flex-col gap-4 max-w-full overflow-x-hidden box-border">
@@ -353,16 +340,12 @@ function CheckoutPageContent() {
                 /* Locked Delivery Method for Quote payments */
                 <div className="rounded-xl border border-border bg-surface p-4.5 shadow-sm">
                   <h3 className="mb-2 text-sm font-bold text-primary">
-                    {lang === "fa" ? "روش تحویل" : "Delivery Method"}
+                    {t("deliveryMethod")}
                   </h3>
                   <p className="text-sm text-secondary">
                     {existingOrder.fulfillment === "pickup"
-                      ? lang === "fa"
-                        ? "تحویل حضوری (Springfield)"
-                        : "In-store Pickup (Springfield)"
-                      : lang === "fa"
-                      ? "ارسال محلی"
-                      : "Local Delivery"}
+                      ? t("inStorePickupSpringfield")
+                      : t("localDelivery")}
                   </p>
                 </div>
               ) : (
@@ -427,41 +410,35 @@ function CheckoutPageContent() {
 
               {hasUnavailableItem && (
                 <p className="mb-3 rounded-lg bg-danger/10 px-3 py-2 text-xs font-medium text-danger">
-                  Remove out-of-stock items to check out.
+                  {t("removeOutOfStock")}
                 </p>
               )}
 
               <dl aria-live="polite">
                 <div className="flex justify-between py-1.75 text-[13.5px] text-secondary">
-                  <dt>{lang === "fa" ? "جمع جزئی" : "Subtotal"}</dt>
+                  <dt>{t("subtotal")}</dt>
                   <dd className="font-mono font-semibold text-primary">{formatCurrency(checkoutSubtotal)}</dd>
                 </div>
                 {checkoutDiscount > 0 && (
                   <div className="flex justify-between py-1.75 text-[13.5px] text-secondary">
-                    <dt>{lang === "fa" ? "تخفیف" : "Promo"}</dt>
+                    <dt>{t("promo")}</dt>
                     <dd className="font-mono font-semibold text-success">−{formatCurrency(checkoutDiscount)}</dd>
                   </div>
                 )}
                 <div className="flex justify-between py-1.75 text-[13.5px] text-secondary">
                   <dt>
-                    {deliveryMethod === "pickup"
-                      ? lang === "fa"
-                        ? "تحویل حضوری"
-                        : "Pickup"
-                      : lang === "fa"
-                      ? "ارسال محلی"
-                      : "Delivery"}
+                    {deliveryMethod === "pickup" ? t("pickup") : t("delivery")}
                   </dt>
                   <dd className={checkoutDeliveryFee === 0 ? "text-xs font-bold text-success" : "font-mono font-semibold text-primary"}>
-                    {checkoutDeliveryFee === 0 ? (lang === "fa" ? "رایگان" : "FREE") : formatCurrency(checkoutDeliveryFee)}
+                    {checkoutDeliveryFee === 0 ? t("free") : formatCurrency(checkoutDeliveryFee)}
                   </dd>
                 </div>
                 <div className="flex justify-between py-1.75 text-[13.5px] text-secondary">
-                  <dt>{lang === "fa" ? "مالیات تخمینی" : "Estimated tax"}</dt>
+                  <dt>{t("estimatedTax")}</dt>
                   <dd className="font-mono font-semibold text-primary">{formatCurrency(checkoutTax)}</dd>
                 </div>
                 <div className="mt-2 flex items-baseline justify-between border-t border-border pt-3.5 font-bold">
-                  <dt className="text-[15px] text-primary">{lang === "fa" ? "جمع کل" : "Total"}</dt>
+                  <dt className="text-[15px] text-primary">{t("total")}</dt>
                   <dd className="font-mono text-[22px] tracking-tight text-primary">{formatCurrency(checkoutTotal)}</dd>
                 </div>
               </dl>
@@ -475,16 +452,12 @@ function CheckoutPageContent() {
                 loading={submitting}
                 onClick={handlePay}
               >
-                {lang === "fa"
-                  ? `پرداخت ${formatCurrency(checkoutTotal)}`
-                  : `Pay ${formatCurrency(checkoutTotal)}`}
+                {t("payAmount").replace("{amount}", formatCurrency(checkoutTotal))}
               </Button>
 
               <p className="mt-3.5 flex items-center justify-center gap-1.5 text-[11.5px] text-tertiary">
                 <ShieldCheckIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                {lang === "fa"
-                  ? "پرداخت امن و معتبر"
-                  : "Secure and verified payment"}
+                {t("securePayment")}
               </p>
             </aside>
           </div>

@@ -11,8 +11,10 @@ import { OrderReview } from "@/components/commerce/OrderReview";
 import { useRouter } from "next/navigation";
 import { readOrder } from "@/lib/checkout";
 import { useMounted } from "@/lib/useMounted";
+import { useLanguage } from "@/lib/useLanguage";
 
 export default function CheckoutSuccessPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const mounted = useMounted();
   const order = mounted ? readOrder() : null;
@@ -25,11 +27,11 @@ export default function CheckoutSuccessPage() {
           {!mounted ? null : !order ? (
             <EmptyState
               icon={<CartIcon className="h-6 w-6" aria-hidden="true" />}
-              title="No recent order found"
-              description="We couldn't find an order for this session. If you just completed checkout, check your email for a confirmation."
+              title={t("noRecentOrderFound")}
+              description={t("noRecentOrderDescription")}
               action={
                 <Button as="a" href="/products">
-                  Start shopping
+                  {t("startShopping")}
                 </Button>
               }
               className="py-16"
@@ -48,14 +50,14 @@ export default function CheckoutSuccessPage() {
 
               <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
                 <Button as="a" href="/products" variant="secondary" fullWidth>
-                  Continue shopping
+                  {t("continueShopping")}
                 </Button>
                 <Button
                   type="button"
                   fullWidth
                   onClick={() => router.push("/account/orders")}
                 >
-                  View order
+                  {t("viewOrder")}
                 </Button>
               </div>
             </>

@@ -19,9 +19,11 @@ import {
   type ApiOrder,
   type CheckoutOrder,
 } from "@/lib/checkout";
+import { useLanguage } from "@/lib/useLanguage";
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: orderId } = use(params);
+  const { t, lang } = useLanguage();
   const toast = useToast();
   const { user } = useAuth();
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
@@ -40,18 +42,18 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         const found = data.find((o) => o.number === orderId);
         setOrder(found ? mapApiOrderToAccountOrder(found, user?.email ?? "") : null);
       } catch {
-        setError("Could not load order details.");
-        toast.show("Could not load order details.", "error");
+        setError(t("couldNotLoadOrderDetails"));
+        toast.show(t("couldNotLoadOrderDetails"), "error");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchOrder();
-  }, [orderId, toast, user?.email, reloadKey]);
+  }, [orderId, toast, user?.email, reloadKey, t]);
 
   const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString("en-US", {
+    return new Date(isoString).toLocaleDateString(lang === "fa" ? "fa-IR" : "en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -88,11 +90,11 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     return (
       <EmptyState
         icon={<TruckIcon className="h-6 w-6" />}
-        title="Order not found"
-        description={`We couldn't find an order with the ID: ${orderId}`}
+        title={t("orderNotFound")}
+        description={t("orderNotFoundWithId").replace("{id}", orderId)}
         action={
           <Button as="a" href="/account/orders">
-            Back to Orders
+            {t("backToAllOrders").replace("← ", "")}
           </Button>
         }
         className="py-12"
@@ -107,9 +109,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       {/* Breadcrumbs */}
       <Breadcrumbs
         items={[
-          { label: "Home", href: "/" },
-          { label: "Account", href: "/account" },
-          { label: "Orders", href: "/account/orders" },
+          { label: t("home"), href: "/" },
+          { label: t("account"), href: "/account" },
+          { label: t("orderHistory"), href: "/account/orders" },
           { label: order.orderNumber, href: `/account/orders/${order.orderNumber}` },
         ]}
       />
@@ -117,14 +119,14 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-extrabold tracking-tight text-primary">
-            Order Details
+            {t("orderDetails")}
           </h1>
           <p className="text-[13px] text-secondary">
-            Placed on {formatDate(order.placedAt)}
+            {t("placedOn").replace("{date}", formatDate(order.placedAt))}
           </p>
         </div>
         <Link href="/account/orders" className="text-[13px] font-semibold text-accent hover:text-accent-hover">
-          ← Back to all orders
+          {t("backToAllOrders")}
         </Link>
       </div>
 
@@ -132,9 +134,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       <Card className="p-4 sm:p-5 border border-border">
         <div className="mb-6 flex items-center justify-between gap-4">
           <h2 className="text-sm font-bold uppercase tracking-wider text-secondary">
-            Delivery Status Tracker
+            {t("deliveryStatusTracker")}
           </h2>
-          <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
+          <Badge variant={statusConfig.variant}>{t(statusConfig.key)}</Badge>
         </div>
         <div className="py-2">
           <OrderStatusStepper
@@ -149,7 +151,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         <div className="space-y-6 lg:col-span-2">
 
           {/* Order Items */}
-          <Card header={<h2 className="text-base font-bold text-primary">Order Items</h2>}>
+          <Card header={<h2 className="text-base font-bold text-primary">{t("orderItems")}</h2>}>
             <div className="divide-y divide-border">
               {order.items.map((item) => (
                 <div key={item.productId} className="flex gap-4 py-4 first:pt-0 last:pb-0">
@@ -165,7 +167,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                       )}
                     </h3>
                     <p className="text-xs text-secondary mt-0.5">
-                      Quantity: {item.quantity} · {formatCurrency(item.unitPrice)} each
+                      {t("orderItemQuantityEach").replace("{quantity}", String(item.quantity)).replace("{price}", formatCurrency(item.unitPrice))}
                     </p>
                   </div>
                   <div className="text-end">
@@ -179,20 +181,20 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           </Card>
 
           {/* Delivery Method and Contact Info */}
-          <Card header={<h2 className="text-base font-bold text-primary">Fulfillment Details</h2>}>
+          <Card header={<h2 className="text-base font-bold text-primary">{t("fulfillmentDetails")}</h2>}>
             <div className="grid gap-6 sm:grid-cols-2">
 
               <div>
                 <h3 className="text-xs font-bold text-secondary uppercase tracking-wider mb-2">
-                  Fulfillment Method
+                  {t("fulfillmentMethod")}
                 </h3>
                 <p className="text-[13.5px] font-semibold text-primary">
-                  {order.deliveryMethod === "pickup" ? "In-Store Pickup" : "Local Home Delivery"}
+                  {order.deliveryMethod === "pickup" ? t("inStorePickup") : t("localHomeDelivery")}
                 </p>
                 <p className="text-xs text-secondary mt-1">
                   {order.deliveryMethod === "pickup"
-                    ? "DevOps Target Main Shop (Ready in ~2 hrs)"
-                    : "Delivered to your home address"}
+                    ? t("fulfillmentPickupDetail")
+                    : t("fulfillmentDeliveryDetail")}
                 </p>
               </div>
 
@@ -200,7 +202,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 {order.deliveryMethod === "pickup" ? (
                   <>
                     <h3 className="text-xs font-bold text-secondary uppercase tracking-wider mb-2">
-                      Pickup Contact
+                      {t("pickupContact")}
                     </h3>
                     {order.pickupContact ? (
                       <>
@@ -213,14 +215,14 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                       </>
                     ) : (
                       <p className="text-xs text-secondary">
-                        Contact details on file with your account.
+                        {t("pickupContactOnFile")}
                       </p>
                     )}
                   </>
                 ) : (
                   <>
                     <h3 className="text-xs font-bold text-secondary uppercase tracking-wider mb-2">
-                      Shipping Address
+                      {t("shippingAddress")}
                     </h3>
                     {order.address ? (
                       <>
@@ -237,7 +239,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                         </p>
                       </>
                     ) : (
-                      <p className="text-xs text-secondary">No address on file for this order.</p>
+                      <p className="text-xs text-secondary">{t("noAddressOnFile")}</p>
                     )}
                   </>
                 )}
@@ -250,44 +252,44 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
         {/* Right Column: Receipt summary */}
         <div>
-          <Card header={<h2 className="text-base font-bold text-primary">Payment Receipt</h2>}>
+          <Card header={<h2 className="text-base font-bold text-primary">{t("paymentReceipt")}</h2>}>
             <div className="space-y-3">
               <div className="flex justify-between text-[13px] text-secondary">
-                <span>Subtotal</span>
+                <span>{t("subtotal")}</span>
                 <span className="font-mono">{formatCurrency(order.subtotal)}</span>
               </div>
 
               {order.discount > 0 && (
                 <div className="flex justify-between text-[13px] text-success">
-                  <span>Discount {order.promoCode && `(${order.promoCode})`}</span>
+                  <span>{t("promo")} {order.promoCode && `(${order.promoCode})`}</span>
                   <span className="font-mono">-{formatCurrency(order.discount)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-[13px] text-secondary">
-                <span>Shipping / Delivery</span>
+                <span>{t("shippingDelivery")}</span>
                 <span className="font-mono">
-                  {order.deliveryFee === 0 ? "FREE" : formatCurrency(order.deliveryFee)}
+                  {order.deliveryFee === 0 ? t("free") : formatCurrency(order.deliveryFee)}
                 </span>
               </div>
 
               <div className="flex justify-between text-[13px] text-secondary">
-                <span>Sales Tax</span>
+                <span>{t("salesTax")}</span>
                 <span className="font-mono">{formatCurrency(order.tax)}</span>
               </div>
 
               <div className="border-t border-border pt-3 flex justify-between text-[15px] font-extrabold text-primary">
-                <span>Total Paid</span>
+                <span>{t("totalPaid")}</span>
                 <span className="font-mono text-accent">{formatCurrency(order.total)}</span>
               </div>
             </div>
 
             <div className="mt-6 flex flex-col gap-2">
               <Button onClick={() => window.print()} variant="secondary" fullWidth size="sm">
-                Print Invoice
+                {t("printInvoice")}
               </Button>
               <Button as="a" href="/support" variant="ghost" fullWidth size="sm">
-                Get Support for Order
+                {t("getSupportForOrder")}
               </Button>
             </div>
           </Card>

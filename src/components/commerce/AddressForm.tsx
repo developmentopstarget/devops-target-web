@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/Input";
 import { CheckoutStepCard } from "@/components/commerce/CheckoutStepCard";
 import type { CheckoutAddress, PickupContact } from "@/lib/checkout";
+import { useLanguage } from "@/lib/useLanguage";
 
 interface DeliveryVariantProps {
   variant: "delivery";
@@ -19,13 +20,15 @@ interface PickupVariantProps {
 export type AddressFormProps = DeliveryVariantProps | PickupVariantProps;
 
 export function AddressForm(props: AddressFormProps) {
+  const { t } = useLanguage();
+
   if (props.variant === "pickup") {
     const { value, onChange, errors } = props;
     return (
-      <CheckoutStepCard step={3} title="Pickup contact">
+      <CheckoutStepCard step={3} title={t("pickupContact")}>
         <div className="grid grid-cols-2 gap-3">
           <Input
-            label="First name"
+            label={t("firstName")}
             autoComplete="given-name"
             required
             value={value.firstName}
@@ -33,7 +36,7 @@ export function AddressForm(props: AddressFormProps) {
             onChange={(e) => onChange({ ...value, firstName: e.target.value })}
           />
           <Input
-            label="Last name"
+            label={t("lastName")}
             autoComplete="family-name"
             required
             value={value.lastName}
@@ -44,7 +47,7 @@ export function AddressForm(props: AddressFormProps) {
         <Input
           className="mt-3"
           type="tel"
-          label="Phone"
+          label={t("phone")}
           placeholder="(555) 000-0000"
           autoComplete="tel"
           required
@@ -58,10 +61,10 @@ export function AddressForm(props: AddressFormProps) {
 
   const { value, onChange, errors } = props;
   return (
-    <CheckoutStepCard step={3} title="Delivery address">
+    <CheckoutStepCard step={3} title={t("deliveryAddress")}>
       <div className="grid grid-cols-2 gap-3">
         <Input
-          label="First name"
+          label={t("firstName")}
           autoComplete="given-name"
           required
           value={value.firstName}
@@ -69,7 +72,7 @@ export function AddressForm(props: AddressFormProps) {
           onChange={(e) => onChange({ ...value, firstName: e.target.value })}
         />
         <Input
-          label="Last name"
+          label={t("lastName")}
           autoComplete="family-name"
           required
           value={value.lastName}
@@ -79,8 +82,8 @@ export function AddressForm(props: AddressFormProps) {
       </div>
       <Input
         className="mt-3"
-        label="Address"
-        placeholder="Street address"
+        label={t("address")}
+        placeholder={t("streetAddressPlaceholder")}
         autoComplete="address-line1"
         required
         value={value.line1}
@@ -89,7 +92,7 @@ export function AddressForm(props: AddressFormProps) {
       />
       <div className="mt-3 grid grid-cols-2 gap-3">
         <Input
-          label="City"
+          label={t("city")}
           autoComplete="address-level2"
           required
           value={value.city}
@@ -97,8 +100,8 @@ export function AddressForm(props: AddressFormProps) {
           onChange={(e) => onChange({ ...value, city: e.target.value })}
         />
         <Input
-          label="Postal code"
-          placeholder="ZIP"
+          label={t("postalCode")}
+          placeholder={t("zipPlaceholder")}
           autoComplete="postal-code"
           required
           value={value.postalCode}
@@ -109,7 +112,7 @@ export function AddressForm(props: AddressFormProps) {
       <Input
         className="mt-3"
         type="tel"
-        label="Phone"
+        label={t("phone")}
         placeholder="(555) 000-0000"
         autoComplete="tel"
         required

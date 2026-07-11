@@ -9,14 +9,17 @@ export interface OrderStatusStepperProps {
 
 const STATUS_ORDER: OrderStatus[] = ["placed", "paid", "fulfilling", "completed"];
 
+import { useLanguage } from "@/lib/useLanguage";
+
 export function OrderStatusStepper({ status, deliveryMethod, className }: OrderStatusStepperProps) {
+  const { t } = useLanguage();
   const currentIndex = STATUS_ORDER.indexOf(status);
 
   const steps: Array<{ key: OrderStatus; label: string }> = [
-    { key: "placed", label: "Placed" },
-    { key: "paid", label: "Paid" },
-    { key: "fulfilling", label: deliveryMethod === "pickup" ? "Ready for pickup" : "Shipped" },
-    { key: "completed", label: deliveryMethod === "pickup" ? "Picked up" : "Delivered" },
+    { key: "placed", label: t("statusPlaced") },
+    { key: "paid", label: t("statusPaid") },
+    { key: "fulfilling", label: deliveryMethod === "pickup" ? t("statusReadyForPickup") : t("statusShipped") },
+    { key: "completed", label: deliveryMethod === "pickup" ? t("statusPickedUp") : t("statusDelivered") },
   ];
 
   return (

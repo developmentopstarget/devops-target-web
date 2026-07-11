@@ -169,22 +169,24 @@ export type OrderStatusBadgeVariant = "neutral" | "accent" | "success" | "warnin
 // Django's full order-status vocabulary (api/backend shop/models.py: ORDER_STATUS_CHOICES),
 // mapped to customer-facing copy. Broader than the 4-stage OrderStatus above, which only
 // exists to drive the OrderStatusStepper's progress bar.
-const ORDER_STATUS_LABELS: Record<string, { variant: OrderStatusBadgeVariant; label: string }> = {
-  pending: { variant: "info", label: "Processing" },
-  pending_payment: { variant: "warning", label: "Awaiting Payment" },
-  awaiting_verification: { variant: "warning", label: "در انتظار تأیید" },
-  paid: { variant: "info", label: "Paid" },
-  failed: { variant: "danger", label: "Payment Failed" },
-  preparing: { variant: "warning", label: "Preparing" },
-  ready: { variant: "warning", label: "Ready" },
-  shipped: { variant: "warning", label: "Shipped" },
-  delivered: { variant: "success", label: "Delivered" },
-  cancelled: { variant: "danger", label: "Cancelled" },
-  refunded: { variant: "neutral", label: "Refunded" },
+import type { TranslationKey } from "./useLanguage";
+
+const ORDER_STATUS_LABELS: Record<string, { variant: OrderStatusBadgeVariant; key: TranslationKey }> = {
+  pending: { variant: "info", key: "statusProcessing" },
+  pending_payment: { variant: "warning", key: "statusAwaitingPayment" },
+  awaiting_verification: { variant: "warning", key: "statusAwaitingVerification" },
+  paid: { variant: "info", key: "statusPaid" },
+  failed: { variant: "danger", key: "statusPaymentFailed" },
+  preparing: { variant: "warning", key: "statusPreparing" },
+  ready: { variant: "warning", key: "statusReady" },
+  shipped: { variant: "warning", key: "statusShipped" },
+  delivered: { variant: "success", key: "statusDelivered" },
+  cancelled: { variant: "danger", key: "statusCancelled" },
+  refunded: { variant: "neutral", key: "statusRefunded" },
 };
 
-export function getOrderStatusLabel(status: string): { variant: OrderStatusBadgeVariant; label: string } {
-  return ORDER_STATUS_LABELS[status] ?? { variant: "neutral", label: status };
+export function getOrderStatusLabel(status: string): { variant: OrderStatusBadgeVariant; key: TranslationKey } {
+  return ORDER_STATUS_LABELS[status] ?? { variant: "neutral", key: "statusUnknown" };
 }
 
 // Builds the local CheckoutOrder shape the confirmation UI already renders,
