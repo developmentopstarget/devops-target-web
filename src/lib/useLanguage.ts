@@ -424,8 +424,8 @@ const translations = {
 export type TranslationKey = keyof typeof translations.en;
 
 export function useLanguage() {
-  const [lang, setLang] = useState<"en" | "fa">("en");
-  const [dir, setDir] = useState("ltr");
+  const [lang, setLang] = useState<"en" | "fa">("fa");
+  const [dir, setDir] = useState("rtl");
 
   useEffect(() => {
     if (typeof window !== "undefined") {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { ShieldCheckIcon, TruckIcon } from "@/components/ui/icons";
-import { useToast } from "@/components/ui/Toast";
 import { formatCurrency } from "@/lib/currency";
 import { storeConfig } from "@/config/store";
 import { PromoCode, type AppliedPromo } from "@/components/commerce/PromoCode";
@@ -22,7 +22,7 @@ const FLAT_DELIVERY_FEE = 9.99;
 
 export function OrderSummary({ items, subtotal, className }: OrderSummaryProps) {
   const { t, lang } = useLanguage();
-  const { show } = useToast();
+  const router = useRouter();
   const [promo, setPromo] = useState<AppliedPromo | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
 
@@ -34,11 +34,9 @@ export function OrderSummary({ items, subtotal, className }: OrderSummaryProps) 
   const checkoutDisabled = items.length === 0 || hasUnavailableItem;
 
   function handleCheckout() {
+    if (checkoutDisabled) return;
     setCheckingOut(true);
-    window.setTimeout(() => {
-      setCheckingOut(false);
-      show("Checkout isn't wired up yet in this preview.", "info");
-    }, 700);
+    router.push("/checkout");
   }
 
   return (

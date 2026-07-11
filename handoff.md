@@ -27,13 +27,9 @@ None.
 
 ## Changed This Session
 
-- `src/lib/checkout.ts`: Added `awaiting_verification` status mapper mapping to `"placed"` stage, and mapped to warning-colored Farsi label `"در انتظار تأیید"` in `ORDER_STATUS_LABELS`.
-- `src/app/api/payments/bank-accounts/route.ts`: Created Next.js GET proxy handler for fetching shop accounts.
-- `src/app/api/payments/bank-transfer/route.ts`: Created Next.js POST proxy handler for receipt multipart/form-data upload.
-- `src/app/api/payments/zarinpal/initiate/route.ts`: Created Next.js POST proxy handler for initiating Zarinpal.
-- `src/components/commerce/PaymentForm.tsx`: Rewritten to show the payment method chooser (defaulting to Bank Transfer, disabling Zarinpal with Coming soon tags), display active shop bank accounts with copy widgets, and support transaction receipt file uploads.
-- `src/app/checkout/page.tsx`: Rewritten to bypass Stripe, validate Zarinpal and Bank Transfer, redirect unauthenticated users on mount, and handle cart clearance and success routing.
-- `web/handoff.md`: Updated project state.
+- `src/components/commerce/OrderSummary.tsx`: Replaced dummy toast checkout stub with Next.js router navigation pushing to `/checkout` on click, and dropped the now-unused `useToast` import.
+- `src/app/layout.tsx`: Updated the root HTML element default language to `fa` and direction to `rtl`.
+- `src/lib/useLanguage.ts`: Changed initial useState states for `lang` to `"fa"` and `dir` to `"rtl"` to load Farsi (RTL) layout by default.
 
 ## Failed Attempts
 
@@ -43,10 +39,11 @@ None.
 
 - Replaced Stripe entirely as requested.
 - Kept the Zarinpal proxy and initiate fetch logic completely intact but dormant (guarded at the beginning of the handler).
+- Farsi/RTL is now the default layout on initial page load, and the language toggle switches between Farsi and English correctly as expected.
 
 ## Next Step
 
-1. Implement Django admin updates, theme customizations, or support chat (Phase E/F).
+1. Continue with Phase E/F backend or security integration (e.g. 2FA with django-otp).
 
 ## Commands to Run First
 
