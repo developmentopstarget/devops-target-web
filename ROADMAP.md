@@ -9,14 +9,16 @@ DevOps Target is the rebuild of **niavarancomputer.com** (نیاوران کام�
 
 ## Where we are (2026-07-11)
 
-**MVP loop live end-to-end** + **Phases A, B, C done; Phase D backend done.** (Built with Gemini Antigravity while resting.)
+**MVP + Phases A, B, C, D + i18n are DONE and MERGED to `main`** in both repos (CI green, bilingual, verified end-to-end). Much built with Gemini Antigravity via the Cowork↔Antigravity loop (Cowork writes fix-prompts, Antigravity applies, user commits).
 - **Phase A (catalog data model) — DONE:** `pricing_mode` fixed|on_request, nullable price, `type`, `condition`, Pillow `ImageField` uploads, Persian taxonomy seed.
 - **Phase B (admin friendliness) — DONE:** `django-unfold` theme, Farsi admin UI (RTL, Tehran TZ), Persian labels/help text, image-preview widget.
-- **Phase C (quote system) — DONE:** backend `QuoteRequest` → auto-creates payable `Order` on approval; frontend quote button + `QuoteRequestModal` + `/account/quotes` + pay-approved-quote checkout (web `feature/phase-c-quotes-ui`).
-- **Phase D (Iranian payments) — BACKEND DONE:** `BankAccount` + `Payment` (receipt `ImageField`, `verification_status` pending/approved/rejected, `verified_by/at`) models; `Order.awaiting_verification` state with never-auto-approve guard; admin verify action; Zarinpal stub views. Committed + pushed on api branch `feature/phase-d-payments` (`4582dd4`, migrations 0005/0006/0007, 132 tests passing).
+- **Phase C (quote system) — DONE:** backend `QuoteRequest` → auto-creates payable `Order` on approval; frontend quote button + `QuoteRequestModal` (portaled) + `/account/quotes` + pay-approved-quote checkout.
+- **Phase D (Iranian payments) — DONE (verified end-to-end):** `BankAccount` + `Payment` (receipt `ImageField`, `verification_status`, `verified_by/at`); `Order.awaiting_verification` with never-auto-approve guard; admin verify action. Frontend: payment-method chooser, bank display + copy buttons, multipart receipt-upload proxy, awaiting-verification badge. Test order DT-629196 confirmed order→payment→receipt→awaiting_verification→admin approve. **Zarinpal = disabled/dormant ("به‌زودی")** — code kept for later real gateway wiring.
+- **i18n — DONE:** Farsi is the default (`<html lang="fa" dir="rtl">`), EN via toggle; checkout / success / order-history routed through the `t()` dict (`src/lib/useLanguage.ts`); admin nav Farsi via model `verbose_name`s + ShopConfig.
+- **CI:** api `ci.yml` runs `collectstatic --noinput` before backend-tests (django-unfold static manifest fails under DEBUG=False otherwise).
 
-**➡️ NEXT = Phase D frontend** (payment-method chooser, bank-account display + copy, receipt upload, awaiting-verification state, admin verify UX) + real Zarinpal wiring.
-**⚠️ Payments still = Stripe DEV STAND-IN only** (Stripe doesn't operate in Iran) — being replaced by Phase D.
+**➡️ NEXT = Phase E** (2FA via django-otp + wire `/verify-2fa`; support chat = Channels websocket + AI — ⚠️ OpenAI unreachable from Iran → plan LiteLLM + local/Iran-reachable model). Then Phase F (real content/images, web CI + branch protection, Render + Vercel deploy).
+**⚠️ Payments still = Stripe DEV STAND-IN for the online-card path** (Stripe doesn't operate in Iran); production online path = Zarinpal (dormant) — manual bank transfer is the live, working method.
 
 ## Locked decisions
 
