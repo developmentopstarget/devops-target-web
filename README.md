@@ -1,8 +1,12 @@
 # DevOps Target Web
 
-Modern e-commerce storefront built with Next.js, React, and TypeScript for a computer retailer.
+Production-oriented e-commerce storefront built with Next.js, React, and TypeScript for a computer retailer, featuring responsive product browsing, promotions, custom PC services, shopping cart and checkout workflows, and Farsi/RTL localization.
 
-The application provides a responsive storefront for browsing products, promotions, custom PC services, and completing the customer shopping and checkout experience.
+The application uses Tailwind CSS for responsive UI development, Stripe for payment workflows, and Vercel for production deployment.
+
+## Live Application
+
+[View Live Application](https://website-starter-seven.vercel.app/)
 
 ## Features
 
@@ -28,6 +32,3 @@ The application provides a responsive storefront for browsing products, promotio
 
 This project demonstrates a production-oriented e-commerce frontend with an emphasis on responsive design, localization, checkout workflows, maintainable architecture, and modern Next.js development.
 
-## Live Application
-
-[View Live Application](https://website-starter-seven.vercel.app/)
